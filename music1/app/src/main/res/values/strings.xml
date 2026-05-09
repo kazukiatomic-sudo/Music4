@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Music1</string>
+    <string name="app_name_elegante">MusicVerse</string>
+    <string name="subtitulo_elegante">Tu experiencia musical personal</string>
+
+    <!-- MainActivity -->
+    <string name="saludo_inicial">Bienvenido a tu Reproductor</string>
+    <string name="saludo_bienvenida">¡Hola, bienvenido %s!</string>
+    <string name="hint_nombre">Tu nombre</string>
+    <string name="btn_continuar">Continuar</string>
+    <string name="error_nombre_requerido">El nombre es obligatorio</string>
+
+    <!-- AvatarActivity -->
+    <string name="titulo_seleccion_avatar">Elige tu Avatar</string>
+    <string name="avatar_seleccionado">Avatar %d seleccionado</string>
+
+    <!-- VideoActivity -->
+    <string name="btn_detener">Detener Música y Video</string>
+
+    <!-- LoadingActivity -->
+    <string name="preparando">Preparando tu experiencia...</string>
+
+    <!-- NuevaBienvenidaActivity -->
+    <string name="bienvenido_nuevo">¡Bienvenido uwu!</string>
+    <string name="bienvenido_personal">¡Bienvenido uwu, %s!</string>
+    <string name="mensaje_bienvenida">Descubre un mundo de música diseñado para ti</string>
+    <string name="canciones">Canciones</string>
+    <string name="playlists">Playlists</string>
+    <string name="recomendado">Recomendado para ti</string>
+    <string name="para_ti">Para ti</string>
+    <string name="descubrir">Descubrir</string>
+    <string name="explorar_musica">Explorar música</string>
+
+    <!-- 🔥 NUEVOS TEXTOS para TipoMusicaActivity -->
+    <string name="elige_tipo_musica">¿Cómo quieres escuchar?</string>
+    <string name="musica_local">Música Local</string>
+    <string name="musica_online">Música Online</string>
+    <string name="descripcion_local">Tus archivos MP3</string>
+    <string name="descripcion_online">Streaming y más</string>
+
+    <!-- 🔥 NUEVOS TEXTOS para ReproductorLocal -->
+    <string name="proximas_canciones">PRÓXIMAS CANCIONES</string>
+    <string name="artista_desconocido">Artista Desconocido</string>
+    <string name="album_cover">Portada del álbum</string>
+
+    <!-- Content Descriptions -->
+    <string name="avatar_uno_desc">Avatar número 1</string>
+    <string name="avatar_dos_desc">Avatar número 2</string>
+</resources>

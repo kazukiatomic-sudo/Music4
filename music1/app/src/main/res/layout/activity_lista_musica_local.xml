@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/fondo_principal">
+
+    <!-- Toolbar simple -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/fondo_secundario"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="Tu Música"
+        app:titleTextColor="@color/texto_primario"
+        app:titleTextAppearance="@style/Text.H3" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- ProgressBar de carga -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:progressTint="@color/accento_principal"
+            android:visibility="gone" />
+
+        <!-- Empty State -->
+        <LinearLayout
+            android:id="@+id/emptyState"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:visibility="gone"
+            android:padding="32dp">
+
+            <ImageView
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:src="@drawable/ic_music_note"
+                android:tint="@color/texto_terciario" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No hay canciones"
+                style="@style/Text.H3"
+                android:layout_marginTop="16dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Las canciones aparecerán aquí"
+                style="@style/Text.Body" />
+        </LinearLayout>
+
+        <!-- RecyclerView con la lista de canciones -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible" />
+
+    </FrameLayout>
+</LinearLayout>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/fondo_principal">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/fondo_secundario"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="Mis Favoritos"
+        app:titleTextColor="@color/texto_primario"
+        app:titleTextAppearance="@style/Text.H3" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tvEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="No tienes canciones favoritas"
+            android:textColor="@color/texto_secundario"
+            android:textSize="16sp"
+            android:visibility="visible" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+</LinearLayout>

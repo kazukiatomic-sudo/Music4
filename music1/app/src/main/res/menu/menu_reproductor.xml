@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_letra"
+        android:icon="@drawable/ic_lyrics"
+        android:title="Letra"
+        android:visible="true" />
+
+    <item
+        android:id="@+id/action_add_playlist"
+        android:icon="@drawable/ic_add_to_playlist"
+        android:title="Agregar a la lista de reproducción..." />
+
+    <item
+        android:id="@+id/action_edit_tags"
+        android:icon="@drawable/ic_edit"
+        android:title="Editor de etiquetas" />
+
+    <item
+        android:id="@+id/action_details"
+        android:icon="@drawable/ic_info"
+        android:title="Detalles" />
+
+    <item
+        android:id="@+id/action_speed"
+        android:icon="@drawable/ic_speed"
+        android:title="Velocidad de reproducción" />
+
+    <item
+        android:id="@+id/action_equalizer"
+        android:icon="@drawable/ic_equalizer"
+        android:title="Ecualizador" />
+
+    <item
+        android:id="@+id/action_cutter"
+        android:icon="@drawable/ic_cut"
+        android:title="Cortador MP3" />
+
+    <item
+        android:id="@+id/action_search_youtube"
+        android:icon="@drawable/ic_youtube"
+        android:title="Buscar en YouTube" />
+
+    <item
+        android:id="@+id/action_theme"
+        android:icon="@drawable/ic_theme"
+        android:title="Tema del reproductor" />
+
+    <item
+        android:id="@+id/action_drive_mode"
+        android:icon="@drawable/ic_drive"
+        android:title="Modo de conducir" />
+
+    <item
+        android:id="@+id/action_lock_screen"
+        android:icon="@drawable/ic_lock_screen"
+        android:title="Pantalla de bloqueo" />
+
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_settings"
+        android:title="Ajustes" />
+
+    <item
+        android:id="@+id/action_hide"
+        android:icon="@drawable/ic_hide"
+        android:title="Ocultar" />
+
+    <item
+        android:id="@+id/action_delete"
+        android:icon="@drawable/ic_delete"
+        android:title="Eliminar del dispositivo" />
+
+    <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_share"
+        android:title="Compartir" />
+
+    <item
+        android:id="@+id/action_sleep_timer"
+        android:icon="@drawable/ic_sleep_timer"
+        android:title="Temporizador de apagado" />
+
+    <item
+        android:id="@+id/action_fade"
+        android:icon="@drawable/ic_fade"
+        android:title="Desvanecer" />
+
+    <item
+        android:id="@+id/action_gapless"
+        android:icon="@drawable/ic_gapless"
+        android:title="Reproducción sin pausas" />
+
+
+</menu>

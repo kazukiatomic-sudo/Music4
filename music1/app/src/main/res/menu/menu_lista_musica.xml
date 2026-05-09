@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Botón de búsqueda -->
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search"
+        android:title="Buscar"
+        app:showAsAction="always" />
+
+    <!-- Botón de favoritos (NUEVO) -->
+    <item
+        android:id="@+id/action_favoritos"
+        android:icon="@drawable/ic_favorite"
+        android:title="Favoritos"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_sugerir"
+        android:icon="@drawable/ic_sugerir"
+        android:title="Sugerir"
+        app:showAsAction="always" />
+
+</menu>

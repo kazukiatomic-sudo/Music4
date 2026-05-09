@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/fondo_principal">
+
+    <!-- Toolbar con botón de volver -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/fondo_secundario"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="Buscar música"
+        app:titleTextColor="@color/texto_primario"
+        app:titleTextAppearance="@style/Text.H3" />
+
+    <!-- Barra de búsqueda -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="28dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/fondo_secundario">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="12dp"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_search"
+                android:tint="@color/texto_secundario"
+                android:layout_marginEnd="8dp" />
+
+            <EditText
+                android:id="@+id/etBuscar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Canción, artista o álbum..."
+                android:background="@null"
+                android:textColorHint="@color/texto_secundario"
+                android:textColor="@color/texto_primario"
+                android:textSize="16sp"
+                android:maxLines="1" />
+
+            <ImageView
+                android:id="@+id/ivClear"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_close"
+                android:tint="@color/texto_secundario"
+                android:visibility="gone"
+                android:padding="4dp" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Resultados -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:progressTint="@color/accento_principal"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tvEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="Escribe para buscar canciones"
+            android:textColor="@color/texto_secundario"
+            android:textSize="16sp"
+            android:visibility="visible" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+    </FrameLayout>
+
+</LinearLayout>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/fondo_principal">
+
+    <!-- Barra superior con título -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/fondo_secundario">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="@dimen/spacing_m">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_music_online"
+                android:tint="@color/destello_play" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Música Online"
+                style="@style/Text.H3"
+                android:gravity="center" />
+
+            <Button
+                android:id="@+id/btnVolver"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Volver"
+                android:backgroundTint="@color/rojo_detener"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+    <!-- ProgressBar de carga -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:indeterminate="true"
+        android:visibility="gone"
+        android:progressTint="@color/destello_play" />
+
+    <!-- WebView para mostrar música online -->
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</LinearLayout>

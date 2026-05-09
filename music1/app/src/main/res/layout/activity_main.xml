@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:orientation="vertical"
+
+    android:gravity="center_horizontal"
+
+    android:background="@color/fondo_oscuro"
+
+    android:padding="24dp">
+
+    <ImageView
+        android:id="@+id/avatar"
+
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+
+        android:src="@drawable/avatar1"
+
+        android:layout_marginBottom="24dp"
+
+        android:contentDescription="@string/avatar_uno_desc"/>
+
+
+    <TextView
+
+        android:id="@+id/txtSaludo"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="@string/saludo_inicial"
+
+        android:textColor="@color/white"
+
+        android:textSize="24sp"
+
+        android:textStyle="bold"
+
+        android:layout_marginBottom="24dp"/>
+
+
+    <EditText
+
+        android:id="@+id/editNombre"
+
+        android:layout_width="250dp"
+
+        android:layout_height="wrap_content"
+
+        android:hint="@string/hint_nombre"
+
+        android:background="@drawable/bg_edittext"
+
+        android:padding="12dp"
+
+        android:inputType="textPersonName"
+
+        android:textColor="@color/black"/>
+
+
+    <Button
+
+        android:id="@+id/btnGuardar"
+
+        android:layout_width="200dp"
+
+        android:layout_height="wrap_content"
+
+        android:text="@string/btn_continuar"
+
+        android:layout_marginTop="24dp"
+
+        android:backgroundTint="@color/verde_spotify"
+
+        android:textColor="@color/white"/>
+
+</LinearLayout>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_m"
+    android:background="@color/fondo_secundario">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ECUALIZADOR"
+        style="@style/Text.H3"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/spacing_m" />
+
+    <!-- Spinner para presets -->
+    <androidx.appcompat.widget.AppCompatSpinner
+        android:id="@+id/presetSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_m"
+        android:background="@drawable/bg_spinner"
+        android:popupBackground="@color/fondo_secundario" />
+
+    <!-- Contenedor de sliders (se llenará dinámicamente) -->
+    <LinearLayout
+        android:id="@+id/bandsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" />
+
+    <!-- Botones -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="@dimen/spacing_m">
+
+        <Button
+            android:id="@+id/btnClose"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cerrar"
+            style="@style/Widget.RoundedButton"
+            android:backgroundTint="@color/rojo_detener"
+            android:layout_marginEnd="@dimen/spacing_xs" />
+
+        <Button
+            android:id="@+id/btnReset"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Reset"
+            style="@style/Widget.RoundedButton"
+            android:backgroundTint="@color/texto_secundario"
+            android:layout_marginStart="@dimen/spacing_xs" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/fondo_oscuro">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_music_logo"
+            android:layout_marginBottom="32dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Music App"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:layout_marginBottom="48dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Correo electrónico"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/colorAccent"
+            android:textColorHint="@color/texto_secundario">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/white"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contraseña"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:passwordToggleEnabled="true"
+            app:boxStrokeColor="@color/colorAccent"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:textColor="@color/white"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="INICIAR SESIÓN"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/colorAccent"
+            android:layout_marginTop="32dp"/>
+
+        <TextView
+            android:id="@+id/tvRegistro"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¿No tienes cuenta? Regístrate"
+            android:textColor="@color/colorAccent"
+            android:textSize="14sp"
+            android:layout_marginTop="24dp"
+            android:clickable="true"
+            android:foreground="?attr/selectableItemBackground"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginTop="24dp"/>
+    </LinearLayout>
+</ScrollView>

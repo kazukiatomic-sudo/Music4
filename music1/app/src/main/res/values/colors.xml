@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colores originales (mantener) -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="fondo_oscuro">#121212</color>
+    <color name="verde_spotify">#1DB954</color>
+    <color name="rojo_detener">#FF4444</color>
+    <color name="gris_hint">#666666</color>
+    <color name="azul_profundo">#0A1929</color>
+    <color name="azul_vibrante">#1976D2</color>
+    <color name="verde_musica">#4CAF50</color>
+    <color name="blanco_suave">#F5F7FA</color>
+    <color name="gris_elegante">#1E2A3A</color>
+
+    <!-- 🔥 NUEVA PALETA PROFESIONAL (agregar) -->
+    <color name="fondo_principal">#0A0A0A</color>
+    <color name="fondo_secundario">#1A1A1A</color>
+    <color name="accento_principal">#BB86FC</color>
+    <color name="accento_secundario">#3700B3</color>
+    <color name="destello_play">#03DAC6</color>
+    <color name="destello_favorito">#CF6679</color>
+
+    <!-- Textos con opacidad -->
+    <color name="texto_primario">#FFFFFF</color>
+    <color name="texto_secundario">#B3FFFFFF</color>
+    <color name="texto_terciario">#80FFFFFF</color>
+
+    <!-- Variantes -->
+    <color name="purpura_transparente">#33BB86FC</color>
+    <color name="negro_suave">#CC0A0A0A</color>
+
+    <!-- ✅ NECESARIO para los layouts -->
+    <color name="colorAccent">#BB86FC</color>
+</resources>

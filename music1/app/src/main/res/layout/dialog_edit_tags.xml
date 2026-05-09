@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/fondo_secundario">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Editor de etiquetas"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/texto_primario"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Portada -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:id="@+id/ivPortada"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_disco"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/bg_circular_white"
+            android:padding="4dp" />
+
+        <ImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_camera"
+            android:tint="@color/white"
+            android:layout_gravity="bottom|end"
+            android:background="#88000000"
+            android:padding="6dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp" />
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/btnCambiarPortada"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Cambiar portada"
+        android:backgroundTint="@color/accento_principal"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/btnEliminarPortada"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="Eliminar portada"
+        android:backgroundTint="@color/rojo_detener"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:visibility="gone"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/etTitulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Título"
+        android:textColor="@color/texto_primario"
+        android:textColorHint="@color/texto_secundario"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_edittext" />
+
+    <EditText
+        android:id="@+id/etArtista"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Artista"
+        android:textColor="@color/texto_primario"
+        android:textColorHint="@color/texto_secundario"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/bg_edittext" />
+
+    <EditText
+        android:id="@+id/etAlbum"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Álbum"
+        android:textColor="@color/texto_primario"
+        android:textColorHint="@color/texto_secundario"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_edittext" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnCancelar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Cancelar"
+            android:backgroundTint="@color/texto_terciario"
+            android:textColor="@color/white"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/btnGuardar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Guardar"
+            android:backgroundTint="@color/accento_principal"
+            android:textColor="@color/white"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

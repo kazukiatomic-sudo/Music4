@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/fondo_principal">
+
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/fondo_secundario"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:title="Sugerencias"
+        app:titleTextColor="@color/texto_primario"
+        app:titleTextAppearance="@style/Text.H3" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_m">
+
+            <!-- SECCIÓN 1: RECIENTES -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="@dimen/spacing_s">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Reproducidas recientemente"
+                    style="@style/Text.H3" />
+
+                <TextView
+                    android:id="@+id/btnVerTodosRecientes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="VER TODOS"
+                    style="@style/Text.Caption"
+                    android:textColor="@color/accento_principal"
+                    android:padding="@dimen/spacing_xs" />
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_l"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/carruselRecientes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/spacing_xs" />
+
+            </HorizontalScrollView>
+
+            <!-- SECCIÓN 2: MÁS REPRODUCIDAS -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="@dimen/spacing_m"
+                android:layout_marginBottom="@dimen/spacing_s">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Más reproducidas"
+                    style="@style/Text.H3" />
+
+                <TextView
+                    android:id="@+id/btnVerTodosTop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="VER TODOS"
+                    style="@style/Text.Caption"
+                    android:textColor="@color/accento_principal"
+                    android:padding="@dimen/spacing_xs" />
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/spacing_l"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/carruselTop"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/spacing_xs" />
+
+            </HorizontalScrollView>
+
+            <!-- Mensaje cuando no hay datos -->
+            <TextView
+                android:id="@+id/tvEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="Reproduce canciones para ver sugerencias"
+                android:textColor="@color/texto_secundario"
+                android:padding="@dimen/spacing_xl"
+                android:visibility="gone" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@color/fondo_oscuro">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_music_logo"
+            android:layout_marginBottom="24dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Crear cuenta"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:layout_marginBottom="32dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nombre"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etNombre"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Correo electrónico"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/white"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Contraseña"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:passwordToggleEnabled="true"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:textColor="@color/white"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Confirmar contraseña"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:passwordToggleEnabled="true"
+            android:layout_marginTop="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etConfirmPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:textColor="@color/white"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Selección de avatar (similar a AvatarActivity) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Elige un avatar"
+            android:textColor="@color/white"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/avatar1"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/avatar1"
+                android:padding="8dp"
+                android:background="@drawable/borde_avatar_seleccionado"
+                android:clickable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless"/>
+
+            <ImageView
+                android:id="@+id/avatar2"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/avatar2"
+                android:padding="8dp"
+                android:clickable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnRegistro"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="REGISTRARSE"
+            android:textAllCaps="false"
+            android:backgroundTint="@color/colorAccent"
+            android:layout_marginTop="32dp"/>
+
+        <TextView
+            android:id="@+id/tvLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¿Ya tienes cuenta? Inicia sesión"
+            android:textColor="@color/colorAccent"
+            android:layout_marginTop="16dp"
+            android:clickable="true"/>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_marginTop="16dp"/>
+    </LinearLayout>
+</ScrollView>

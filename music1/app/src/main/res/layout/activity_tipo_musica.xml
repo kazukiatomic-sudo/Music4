@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fondo_principal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_l">
+
+        <!-- Header con avatar y nombre (efecto vidrio) -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardPerfil"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_xl"
+            app:cardCornerRadius="@dimen/corner_radius"
+            app:cardElevation="@dimen/elevation_high"
+            app:cardBackgroundColor="@color/fondo_secundario"
+            android:alpha="0.0"
+            android:translationY="50dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="@dimen/spacing_m">
+
+                <!-- Avatar con borde y sombra (CORREGIDO) -->
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivAvatarPerfil"
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:src="@drawable/avatar1"
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.App.CornerSize50Percent"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="@color/accento_principal" />
+
+                <!-- Información del usuario -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/spacing_m">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Bienvenido,"
+                        style="@style/Text.Body"
+                        android:textColor="@color/texto_secundario" />
+
+                    <TextView
+                        android:id="@+id/tvNombreUsuario"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Usuario"
+                        style="@style/Text.H3"
+                        android:textColor="@color/texto_primario" />
+                </LinearLayout>
+
+                <!-- Icono de bienvenida -->
+                <ImageView
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_music_local"
+                    android:tint="@color/accento_principal"
+                    android:alpha="0.3" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Título de selección con animación -->
+        <TextView
+            android:id="@+id/tvTituloSeleccion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="¿Cómo quieres escuchar hoy?"
+            style="@style/Text.H2"
+            android:layout_marginBottom="@dimen/spacing_l"
+            android:layout_gravity="center_horizontal"
+            android:alpha="0.0"
+            android:translationY="30dp" />
+
+        <!-- Subtítulo con frase motivadora -->
+        <TextView
+            android:id="@+id/tvSubtitulo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Elige tu experiencia musical"
+            style="@style/Text.Body"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/spacing_xl"
+            android:alpha="0.0"
+            android:translationY="30dp" />
+
+        <!-- Card Música Local (REDISEÑADA) -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardLocal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_m"
+            app:cardCornerRadius="@dimen/corner_radius"
+            app:cardElevation="@dimen/elevation_high"
+            app:cardBackgroundColor="@color/fondo_secundario"
+            android:alpha="0.0"
+            android:translationY="50dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing_l">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/spacing_m">
+
+                    <!-- Icono animado -->
+                    <ImageView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:src="@drawable/ic_music_local"
+                        android:tint="@color/accento_principal"
+                        android:background="@drawable/bg_pulse"
+                        android:padding="12dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingStart="@dimen/spacing_m">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/musica_local"
+                            style="@style/Text.H3"
+                            android:textColor="@color/texto_primario" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tus canciones favoritas"
+                            style="@style/Text.Caption" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Barra de progreso decorativa -->
+                <ProgressBar
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:progress="75"
+                    android:progressTint="@color/accento_principal"
+                    android:progressBackgroundTint="@color/texto_terciario" />
+
+                <!-- Botón con efecto -->
+                <Button
+                    android:id="@+id/btnLocal"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/button_height"
+                    android:text="Escuchar Local"
+                    android:layout_marginTop="@dimen/spacing_m"
+                    style="@style/Widget.RoundedButton"
+                    android:backgroundTint="@color/accento_principal" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Card Música Online (REDISEÑADA) -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardOnline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/spacing_m"
+            app:cardCornerRadius="@dimen/corner_radius"
+            app:cardElevation="@dimen/elevation_high"
+            app:cardBackgroundColor="@color/fondo_secundario"
+            android:alpha="0.0"
+            android:translationY="50dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/spacing_l">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/spacing_m">
+
+                    <!-- Icono animado -->
+                    <ImageView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:src="@drawable/ic_music_online"
+                        android:tint="@color/destello_play"
+                        android:background="@drawable/bg_pulse"
+                        android:padding="12dp" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:paddingStart="@dimen/spacing_m">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/musica_online"
+                            style="@style/Text.H3"
+                            android:textColor="@color/texto_primario" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Streaming ilimitado"
+                            style="@style/Text.Caption" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Barra de progreso decorativa -->
+                <ProgressBar
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:progress="45"
+                    android:progressTint="@color/destello_play"
+                    android:progressBackgroundTint="@color/texto_terciario" />
+
+                <!-- Botón con efecto -->
+                <Button
+                    android:id="@+id/btnOnline"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/button_height"
+                    android:text="Escuchar Online"
+                    android:layout_marginTop="@dimen/spacing_m"
+                    style="@style/Widget.RoundedButton"
+                    android:backgroundTint="@color/destello_play" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Footer con frase inspiradora -->
+        <TextView
+            android:id="@+id/tvFooter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="✨ La música es el alma de la vida"
+            style="@style/Text.Caption"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/spacing_xl"
+            android:alpha="0.0" />
+
+    </LinearLayout>
+</ScrollView>
