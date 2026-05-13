@@ -181,7 +181,14 @@ public class ReproductorLocalActivity extends AppCompatActivity {
     private void inicializarMediaPlayer() {
         try {
             if (mediaPlayer != null) {
-                mediaPlayer.release();
+                try {
+                    if (mediaPlayer.isPlaying()) {
+                        mediaPlayer.stop();
+                    }
+                    mediaPlayer.release();
+                } catch (Exception e) {
+                    Log.e(TAG, "Error al detener MediaPlayer anterior", e);
+                }
                 mediaPlayer = null;
             }
 
