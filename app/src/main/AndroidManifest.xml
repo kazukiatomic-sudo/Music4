@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Permisos -->
+
+    <!-- ========== PERMISOS ========== -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- <uses-permission android:name="android.permission.RECORD_AUDIO" /> --> <!-- COMENTADO: No se usa -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -22,8 +23,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Music1"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:largeHeap="true"
+        android:hardwareAccelerated="true"
+        android:requestLegacyExternalStorage="true">
 
+        <!-- ========== ACTIVITIES ========== -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -33,9 +39,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".PerfilUsuarioActivity"
-            android:exported="false" />
+
         <activity
             android:name=".LoadingActivity"
             android:exported="false"
@@ -49,13 +53,17 @@
             android:name=".AvatarActivity"
             android:exported="false" />
 
+        <!-- ⚠️ COMENTADO: No se usa actualmente
         <activity
             android:name=".NuevaBienvenidaActivity"
             android:exported="false" />
+        -->
 
+        <!-- ⚠️ COMENTADO: No se usa actualmente
         <activity
             android:name=".VideoActivity"
             android:exported="false" />
+        -->
 
         <activity
             android:name=".TipoMusicaActivity"
@@ -63,11 +71,14 @@
 
         <activity
             android:name=".ReproductorLocalActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:theme="@style/Theme.Music1" />
 
         <activity
             android:name=".ReproductorOnlineActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.Music1" />
 
         <activity
             android:name=".ListaMusicaLocalActivity"
@@ -89,14 +100,20 @@
             android:exported="false"
             android:theme="@style/Theme.Music1" />
 
-        <!-- 🔥 NUEVAS ACTIVIDADES AGREGADAS -->
         <activity
             android:name=".LoginActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.Music1" />
 
         <activity
             android:name=".RegistroActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.Music1" />
+
+        <activity
+            android:name=".PerfilUsuarioActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Music1" />
 
     </application>
 

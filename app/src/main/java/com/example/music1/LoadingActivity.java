@@ -39,13 +39,12 @@ public class LoadingActivity extends AppCompatActivity {
         }
 
         new Handler().postDelayed(() -> {
-            String nombre = prefs.getString("nombre", "");
-            int avatar = prefs.getInt("avatar", 0);
-            Log.d(TAG, "postDelayed: nombre=" + nombre + ", avatar=" + avatar);
+            boolean esPrimeraVez = esPrimeraVez();
+            Log.d(TAG, "postDelayed: esPrimeraVez=" + esPrimeraVez);
 
             Intent intent;
-            if (nombre.isEmpty() || avatar == 0) {
-                // Primera vez: pedir nombre y avatar
+            if (esPrimeraVez) {
+                // Primera vez: flujo de registro
                 intent = new Intent(LoadingActivity.this, MainActivity.class);
                 Log.i(TAG, "Primera vez, navegando a MainActivity");
             } else {
@@ -58,5 +57,22 @@ public class LoadingActivity extends AppCompatActivity {
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             finish();
         }, LOADING_DURATION);
+    }
+
+    // ✅ CORREGIDO: Detección correcta de primera vez
+    private boolean esPrimeraVez() {
+        boolean nombreGuardado = !prefs.getString("nombre", "").isEmpty();
+        boolean avatarGuardado = prefs.contains("avatar");
+        boolean bienvenidaCompletada = prefs.getBoolean("bienvenida_completada", false);
+
+        // Si ya pasó por el flujo de bienvenida completo, no es primera vez
+        boolean yaRegistrado = bienvenidaCompletada && nombreGuardado && avatarGuardado;
+
+        Log.d(TAG, "esPrimeraVez: nombreGuardado=" + nombreGuardado +
+                ", avatarGuardado=" + avatarGuardado +
+                ", bienvenidaCompletada=" + bienvenidaCompletada +
+                ", resultado=" + !yaRegistrado);
+
+        return !yaRegistrado;
     }
 }

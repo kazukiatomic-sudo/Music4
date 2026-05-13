@@ -81,6 +81,13 @@ public class EditTagsDialog extends Dialog {
         btnCambiarPortada = findViewById(R.id.btnCambiarPortada);
     }
 
+    // ✅ MÉTODO PÚBLICO para recibir la imagen desde la Activity
+    public void onImagePicked(Uri imageUri) {
+        if (imageUri != null) {
+            cargarImagenDesdeUri(imageUri);
+        }
+    }
+
     private void abrirGaleria() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         if (activity != null) {
@@ -88,17 +95,6 @@ public class EditTagsDialog extends Dialog {
         } else {
             Toast.makeText(getContext(), "No se puede abrir la galería", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    public boolean handleActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_IMAGE_PICK && resultCode == AppCompatActivity.RESULT_OK && data != null) {
-            Uri imageUri = data.getData();
-            if (imageUri != null) {
-                cargarImagenDesdeUri(imageUri);
-                return true;
-            }
-        }
-        return false;
     }
 
     private void cargarImagenDesdeUri(Uri imageUri) {

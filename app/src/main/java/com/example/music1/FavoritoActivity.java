@@ -17,6 +17,7 @@ import com.example.music1.utils.FavoritosManager;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.List;
+import java.util.ArrayList;
 
 public class FavoritoActivity extends AppCompatActivity {
     private static final String TAG = "FavoritoActivity";
@@ -64,23 +65,31 @@ public class FavoritoActivity extends AppCompatActivity {
             adapter = new FavoritoAdapter(favoritos, new FavoritoAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(Favorito favorito) {
+                    // ✅ CORREGIDO: Convertir Favorito a Cancion correctamente
+                    Cancion cancion = new Cancion(
+                            favorito.getId(),
+                            favorito.getTitulo(),
+                            favorito.getArtista(),
+                            favorito.getAlbum(),
+                            favorito.getDuracion(),
+                            favorito.getUri() != null ? android.net.Uri.parse(favorito.getUri()) : null,
+                            favorito.getAlbumId()
+                    );
+
+                    // Crear playlist con esta sola canción
+                    ArrayList<Cancion> playlist = new ArrayList<>();
+                    playlist.add(cancion);
+
                     Intent intent = new Intent(FavoritoActivity.this, ReproductorLocalActivity.class);
-                    // Enviar favorito como canción no es posible directamente
-// Usar método legacy por ahora
-                    intent.putExtra("cancion_id", favorito.getId());
-                    intent.putExtra("cancion_titulo", favorito.getTitulo());
-                    intent.putExtra("cancion_artista", favorito.getArtista());
-                    intent.putExtra("cancion_album", favorito.getAlbum());
-                    intent.putExtra("cancion_duracion", favorito.getDuracion());
-                    intent.putExtra("cancion_uri", favorito.getUri());
-                    intent.putExtra("cancion_album_id", favorito.getAlbumId());
+                    intent.putExtra("cancion_serializada", cancion);
+                    intent.putExtra("lista_canciones", playlist);
+                    intent.putExtra("lista_posicion", 0);
+                    startActivity(intent);
                 }
 
                 @Override
                 public void onEliminarClick(Favorito favorito) {
-                    if (favoritosManager.getFavoritos().isEmpty()) {
-                        cargarFavoritos();
-                    }
+                    cargarFavoritos(); // Refrescar después de eliminar
                 }
             });
             recyclerView.setAdapter(adapter);

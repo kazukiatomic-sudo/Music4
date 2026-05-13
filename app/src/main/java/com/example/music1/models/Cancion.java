@@ -15,7 +15,7 @@ import java.util.Random;
 
 public class Cancion implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L; // ✅ Cambiado para forzar actualización
     private static final String TAG = "Cancion";
 
     private long id;
@@ -27,6 +27,7 @@ public class Cancion implements Serializable {
     private int rawResource;
     private int imagenAlbum;
     private String uriString;
+    private transient Uri uri; // ✅ transient para no serializar, se restaura después
     private static final Random random = new Random();
 
     public Cancion(long id, String titulo, String artista, String album, long duracion, Uri uri, long albumId) {
@@ -37,6 +38,7 @@ public class Cancion implements Serializable {
         this.duracion = duracion;
         this.albumId = albumId;
         this.uriString = uri != null ? uri.toString() : "";
+        this.uri = uri;
         this.rawResource = -1;
         this.imagenAlbum = obtenerImagenAleatoria();
     }
@@ -51,6 +53,7 @@ public class Cancion implements Serializable {
         this.imagenAlbum = imagenAlbum;
         this.uriString = "";
         this.albumId = -1;
+        this.uri = null;
     }
 
     private int obtenerImagenAleatoria() {
@@ -81,16 +84,35 @@ public class Cancion implements Serializable {
     public String getUriString() { return uriString; }
 
     public Uri getUri() {
-        if (uriString != null && !uriString.isEmpty()) {
-            return Uri.parse(uriString);
-        }
-        if (id > 0 && rawResource == -1) {
-            return ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
-        }
-        return null;
+        restaurarUri(); // ✅ Siempre restaurar antes de devolver
+        return uri;
     }
 
-    public void restaurarUri() {}
+    // ✅ CORREGIDO: Método completamente funcional
+    public void restaurarUri() {
+        if (uri != null) {
+            return; // Ya está restaurado
+        }
+
+        if (uriString != null && !uriString.isEmpty()) {
+            try {
+                uri = Uri.parse(uriString);
+                Log.d(TAG, "restaurarUri: Desde string URI: " + uriString);
+                return;
+            } catch (Exception e) {
+                Log.e(TAG, "restaurarUri: Error parseando URI", e);
+            }
+        }
+
+        if (id > 0 && rawResource == -1) {
+            uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
+            Log.d(TAG, "restaurarUri: Desde ID: " + id);
+            return;
+        }
+
+        uri = null;
+        Log.w(TAG, "restaurarUri: No se pudo restaurar URI para ID=" + id);
+    }
 
     public boolean esCancionDePrueba() {
         return rawResource != -1;

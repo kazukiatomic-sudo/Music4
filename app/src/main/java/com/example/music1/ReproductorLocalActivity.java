@@ -33,6 +33,7 @@ import com.example.music1.utils.SessionManager;
 import com.example.music1.utils.TagEditorManager;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -42,14 +43,12 @@ public class ReproductorLocalActivity extends AppCompatActivity {
 
     private static final String TAG = "ReproductorLocal";
 
-    // Vistas
     private ImageView albumCover;
     private TextView songTitle, songArtist, currentTime, totalTime;
     private ImageButton playPauseButton, prevButton, nextButton, repeatButton, shuffleButton;
     private ImageButton eqButton, favButton;
     private SeekBar seekBar;
 
-    // Reproductor
     private MediaPlayer mediaPlayer;
     private final Handler handler = new Handler();
     private Cancion cancionActual;
@@ -64,6 +63,7 @@ public class ReproductorLocalActivity extends AppCompatActivity {
     private FavoritosManager favoritosManager;
     private TagEditorManager tagEditorManager;
     private SessionManager sessionManager;
+    private EditTagsDialog editTagsDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,12 +103,10 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         favButton = findViewById(R.id.favButton);
         seekBar = findViewById(R.id.seekBar);
 
-        // Mostrar botones de navegación
         prevButton.setVisibility(View.VISIBLE);
         nextButton.setVisibility(View.VISIBLE);
         shuffleButton.setVisibility(View.VISIBLE);
 
-        // Iconos iniciales
         repeatButton.setAlpha(0.5f);
         shuffleButton.setAlpha(0.5f);
     }
@@ -116,21 +114,40 @@ public class ReproductorLocalActivity extends AppCompatActivity {
     private void cargarPlaylist() {
         Intent intent = getIntent();
 
-        if (intent.hasExtra("cancion_serializada")) {
-            try {
-                cancionActual = (Cancion) intent.getSerializableExtra("cancion_serializada");
-                playlistActual = (List<Cancion>) intent.getSerializableExtra("lista_canciones");
-                posicionActual = intent.getIntExtra("lista_posicion", 0);
-
-                if (playlistActual == null || playlistActual.isEmpty()) {
-                    playlistActual = new ArrayList<>();
-                    if (cancionActual != null) playlistActual.add(cancionActual);
+        try {
+            if (intent.hasExtra("cancion_serializada")) {
+                Serializable obj = intent.getSerializableExtra("cancion_serializada");
+                if (obj instanceof Cancion) {
+                    cancionActual = (Cancion) obj;
+                    cancionActual.restaurarUri();
+                    Log.d(TAG, "Canción cargada desde serializable: " + cancionActual.getTitulo());
                 }
-                Log.d(TAG, "Playlist cargada: " + playlistActual.size() + " canciones, posición " + posicionActual);
-                return;
-            } catch (Exception e) {
-                Log.e(TAG, "Error al deserializar playlist", e);
             }
+
+            if (intent.hasExtra("lista_canciones")) {
+                Serializable listObj = intent.getSerializableExtra("lista_canciones");
+                if (listObj instanceof List<?>) {
+                    List<?> temp = (List<?>) listObj;
+                    if (!temp.isEmpty() && temp.get(0) instanceof Cancion) {
+                        playlistActual = (List<Cancion>) listObj;
+                        for (Cancion c : playlistActual) {
+                            if (c != null) c.restaurarUri();
+                        }
+                        Log.d(TAG, "Playlist cargada: " + playlistActual.size() + " canciones");
+                    }
+                }
+            }
+
+            posicionActual = intent.getIntExtra("lista_posicion", 0);
+
+            if (playlistActual == null || playlistActual.isEmpty()) {
+                playlistActual = new ArrayList<>();
+                if (cancionActual != null) playlistActual.add(cancionActual);
+            }
+
+            if (cancionActual != null) return;
+        } catch (Exception e) {
+            Log.e(TAG, "Error al deserializar playlist", e);
         }
 
         // Método legacy
@@ -168,6 +185,13 @@ public class ReproductorLocalActivity extends AppCompatActivity {
                 mediaPlayer = null;
             }
 
+            if (cancionActual == null) {
+                Toast.makeText(this, "Error: Canción nula", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+
+            cancionActual.restaurarUri();
             Uri uri = cancionActual.getUri();
             if (uri == null) {
                 Toast.makeText(this, "Error: No se pudo acceder al archivo", Toast.LENGTH_SHORT).show();
@@ -188,6 +212,7 @@ public class ReproductorLocalActivity extends AppCompatActivity {
             });
 
             mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                Log.e(TAG, "MediaPlayer error: what=" + what + ", extra=" + extra);
                 Toast.makeText(this, "Error al reproducir canción", Toast.LENGTH_SHORT).show();
                 return true;
             });
@@ -277,7 +302,8 @@ public class ReproductorLocalActivity extends AppCompatActivity {
             else Toast.makeText(this, "Ecualizador no disponible", Toast.LENGTH_SHORT).show();
         });
 
-        favButton.setOnClickListener(v -> toggleFavorito());
+        // ✅ CORREGIDO: Favoritos sin pedir login para música local
+        favButton.setOnClickListener(v -> toggleFavoritoLocal());
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -287,6 +313,30 @@ public class ReproductorLocalActivity extends AppCompatActivity {
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
         });
+    }
+
+    // ✅ NUEVO: Favoritos SOLO locales (sin login)
+    private void toggleFavoritoLocal() {
+        if (cancionActual == null) return;
+
+        Favorito fav = new Favorito(
+                cancionActual.getId(),
+                cancionActual.getTitulo(),
+                cancionActual.getArtista(),
+                cancionActual.getAlbum(),
+                cancionActual.getDuracion(),
+                cancionActual.getUriString(),
+                cancionActual.getAlbumId()
+        );
+
+        if (favoritosManager.esFavorito(fav.getId(), fav.getUri())) {
+            favoritosManager.quitarFavorito(fav.getId(), fav.getUri());
+            Toast.makeText(this, "❌ Eliminado de favoritos locales", Toast.LENGTH_SHORT).show();
+        } else {
+            favoritosManager.agregarFavorito(fav);
+            Toast.makeText(this, "❤️ Agregado a favoritos locales", Toast.LENGTH_SHORT).show();
+        }
+        actualizarIconoFavorito();
     }
 
     private void reproducirCancion() {
@@ -310,19 +360,16 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
     }
 
-    // 🔥 MÉTODO SIGUIENTE CANCIÓN CON SHUFFLE
     private void siguienteCancion() {
         if (playlistActual.isEmpty()) return;
 
-        if (isShuffle) {
-            // Modo aleatorio: elegir una canción diferente a la actual
+        if (isShuffle && playlistActual.size() > 1) {
             int nuevaPosicion;
             do {
                 nuevaPosicion = random.nextInt(playlistActual.size());
             } while (nuevaPosicion == posicionActual && playlistActual.size() > 1);
             posicionActual = nuevaPosicion;
         } else {
-            // Modo normal: siguiente en orden
             posicionActual++;
             if (posicionActual >= playlistActual.size()) {
                 posicionActual = 0;
@@ -330,22 +377,20 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
 
         cancionActual = playlistActual.get(posicionActual);
+        cancionActual.restaurarUri();
         inicializarMediaPlayer();
     }
 
-    // 🔥 MÉTODO ANTERIOR CANCIÓN (también puede tener shuffle opcional)
     private void cancionAnterior() {
         if (playlistActual.isEmpty()) return;
 
         if (isShuffle && playlistActual.size() > 1) {
-            // En shuffle, anterior también va a una canción aleatoria
             int nuevaPosicion;
             do {
                 nuevaPosicion = random.nextInt(playlistActual.size());
             } while (nuevaPosicion == posicionActual);
             posicionActual = nuevaPosicion;
         } else {
-            // Modo normal: anterior
             posicionActual--;
             if (posicionActual < 0) {
                 posicionActual = playlistActual.size() - 1;
@@ -353,6 +398,7 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
 
         cancionActual = playlistActual.get(posicionActual);
+        cancionActual.restaurarUri();
         inicializarMediaPlayer();
     }
 
@@ -377,27 +423,14 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
     }
 
-    private void toggleFavorito() {
-        if (cancionActual == null) return;
-
-        Usuario usuario = sessionManager.getUsuario();
-        if (usuario == null) {
-            Toast.makeText(this, "Debes iniciar sesión", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        int usuarioId = usuario.getId();
-
-        Favorito fav = new Favorito(cancionActual.getId(), cancionActual.getTitulo(), cancionActual.getArtista(),
-                cancionActual.getAlbum(), cancionActual.getDuracion(), cancionActual.getUriString(), cancionActual.getAlbumId());
-
-        if (favoritosManager.esFavorito(fav.getId(), fav.getUri())) {
-            favoritosManager.quitarFavoritoConSync(fav.getId(), fav.getUri(), usuarioId);
-            Toast.makeText(this, "Eliminado de favoritos", Toast.LENGTH_SHORT).show();
-        } else {
-            favoritosManager.agregarFavoritoConSync(fav, usuarioId);
-            Toast.makeText(this, "Agregado a favoritos", Toast.LENGTH_SHORT).show();
-        }
-        actualizarIconoFavorito();
+    // ✅ CORREGIDO: Botón físico "Atrás" NO detiene la música
+    @Override
+    public void onBackPressed() {
+        // Mover la actividad a segundo plano en lugar de destruirla
+        moveTaskToBack(true);
+        // No llamar a super.onBackPressed() para no destruir la Activity
+        // La música sigue sonando
+        Toast.makeText(this, "🎵 La música sigue sonando en segundo plano", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -408,20 +441,41 @@ public class ReproductorLocalActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_delete) {
+        int id = item.getItemId();
+        if (id == R.id.action_delete) {
             eliminarCancion();
             return true;
-        } else if (item.getItemId() == R.id.action_details) {
+        } else if (id == R.id.action_details) {
             mostrarDetalles();
             return true;
-        } else if (item.getItemId() == R.id.action_search_youtube) {
+        } else if (id == R.id.action_search_youtube) {
             buscarEnYouTube();
             return true;
-        } else if (item.getItemId() == R.id.action_share) {
+        } else if (id == R.id.action_share) {
             compartirCancion();
+            return true;
+        } else if (id == R.id.action_edit_tags) {
+            abrirEditorEtiquetas();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void abrirEditorEtiquetas() {
+        if (cancionActual == null) return;
+        editTagsDialog = new EditTagsDialog(this, cancionActual, () -> {
+            actualizarUI();
+            Toast.makeText(this, "Etiquetas actualizadas", Toast.LENGTH_SHORT).show();
+        });
+        editTagsDialog.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (editTagsDialog != null && editTagsDialog.isShowing() && requestCode == 1001 && resultCode == RESULT_OK && data != null) {
+            editTagsDialog.onImagePicked(data.getData());
+        }
     }
 
     private void eliminarCancion() {
@@ -471,9 +525,7 @@ public class ReproductorLocalActivity extends AppCompatActivity {
             equalizer = null;
         }
         handler.removeCallbacks(updateSeekBar);
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
+        // ⚠️ NO liberamos el MediaPlayer aquí para que siga sonando en segundo plano
+        // Si quieres detenerlo al cerrar la app, se manejará en otro lado
     }
 }

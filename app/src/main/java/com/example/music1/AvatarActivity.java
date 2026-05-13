@@ -57,8 +57,10 @@ public class AvatarActivity extends AppCompatActivity {
             avatar1.setBackground(null);
         }
 
+        // ✅ CORREGIDO: Usar UN SOLO editor
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt("avatar", avatarNumber);
+        editor.putBoolean("bienvenida_completada", true);
         editor.apply();
 
         Toast.makeText(this, "Avatar " + avatarNumber + " seleccionado", Toast.LENGTH_SHORT).show();

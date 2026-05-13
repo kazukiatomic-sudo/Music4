@@ -32,8 +32,11 @@ public class MainActivity extends AppCompatActivity {
 
         prefs = getSharedPreferences("music1", MODE_PRIVATE);
 
+        // ✅ Verificar si ya pasó por el flujo completo
         String nombre = prefs.getString("nombre", "");
-        if (!nombre.isEmpty()) {
+        boolean bienvenidaCompletada = prefs.getBoolean("bienvenida_completada", false);
+
+        if (bienvenidaCompletada && !nombre.isEmpty()) {
             Log.d(TAG, "Usuario ya registrado: " + nombre);
             startActivity(new Intent(MainActivity.this, TipoMusicaActivity.class));
             finish();

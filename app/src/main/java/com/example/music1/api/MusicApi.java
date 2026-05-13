@@ -1,9 +1,9 @@
 package com.example.music1.api;
 
-import com.example.music1.models.FavoritoRemoto;
-import java.util.List;
-import retrofit2.Call;
-import retrofit2.http.*;
+        import com.example.music1.models.FavoritoRemoto;
+        import java.util.List;
+        import retrofit2.Call;
+        import retrofit2.http.*;
 
 public interface MusicApi {
 
