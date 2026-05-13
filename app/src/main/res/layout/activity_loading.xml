@@ -2,14 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/fondo_oscuro">
-
-    <VideoView
-        android:id="@+id/loadingVideo"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
-
+    android:background="@color/black"
     <View
         android:layout_width="match_parent"
         android:layout_height="match_parent"

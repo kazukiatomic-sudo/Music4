@@ -76,7 +76,7 @@ public class ReproductorLocalActivity extends AppCompatActivity {
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setNavigationOnClickListener(v -> finish());
+        toolbar.setNavigationOnClickListener(v -> onBackPressed());
 
         initViews();
         cargarPlaylist();
@@ -178,11 +178,17 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
     }
 
-    private void inicializarMediaPlayer() {
+private void inicializarMediaPlayer() {
         try {
+            // ✅ ARREGLO SOLAPAMIENTO: Si ya existe un reproductor, lo detenemos y liberamos
             if (mediaPlayer != null) {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.stop();
+                }
+                mediaPlayer.reset(); // Limpiamos la configuración anterior
                 mediaPlayer.release();
                 mediaPlayer = null;
+                Log.d(TAG, "Reproductor anterior liberado para evitar solapamiento");
             }
 
             if (cancionActual == null) {
@@ -199,28 +205,24 @@ public class ReproductorLocalActivity extends AppCompatActivity {
                 return;
             }
 
-            Log.d(TAG, "Reproduciendo URI: " + uri.toString());
-
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setDataSource(this, uri);
-            mediaPlayer.prepareAsync();
-
-            mediaPlayer.setOnPreparedListener(mp -> {
-                configurarMediaPlayer();
-                reproducirCancion();
-                actualizarUI();
-            });
+            
+            // ✅ IMPORTANTE: Preparamos de forma síncrona para asegurar el control
+            mediaPlayer.prepare(); 
+            
+            configurarMediaPlayer();
+            reproducirCancion();
+            actualizarUI();
 
             mediaPlayer.setOnErrorListener((mp, what, extra) -> {
                 Log.e(TAG, "MediaPlayer error: what=" + what + ", extra=" + extra);
-                Toast.makeText(this, "Error al reproducir canción", Toast.LENGTH_SHORT).show();
                 return true;
             });
 
         } catch (Exception e) {
             Log.e(TAG, "Error al inicializar MediaPlayer", e);
             Toast.makeText(this, "Error al cargar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            finish();
         }
     }
 
@@ -426,13 +428,20 @@ public class ReproductorLocalActivity extends AppCompatActivity {
     // ✅ CORREGIDO: Botón físico "Atrás" NO detiene la música
     @Override
     public void onBackPressed() {
-        // Mover la actividad a segundo plano en lugar de destruirla
-        moveTaskToBack(true);
-        // No llamar a super.onBackPressed() para no destruir la Activity
-        // La música sigue sonando
-        Toast.makeText(this, "🎵 La música sigue sonando en segundo plano", Toast.LENGTH_SHORT).show();
+        // ✅ PUNTO LÍDER: Detenemos la música y volvemos a la lista
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        // Volvemos a la lista de música local
+        Intent intent = new Intent(this, ListaMusicaLocalActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_reproductor, menu);
