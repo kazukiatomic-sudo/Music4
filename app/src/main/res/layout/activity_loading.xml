@@ -1,47 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/fondo_oscuro">
+    android:background="#000000">
 
-    <VideoView
-        android:id="@+id/loadingVideo"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#66000000" />
-
+    <!-- ✅ Pantalla negra rápida (sin video) -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:background="#000000">
 
+        <!-- Logo o texto de carga opcional -->
         <TextView
-            android:id="@+id/txtCargando"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/preparando"
+            android:text="🎵 Music App"
+            android:textSize="24sp"
             android:textColor="@color/white"
-            android:textSize="20sp"
             android:textStyle="bold"
-            android:letterSpacing="0.1"
-            android:layout_marginBottom="16dp" />
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="200dp"
-            android:layout_height="4dp"
-            android:progressTint="@color/azul_vibrante"
-            android:progressBackgroundTint="#4DFFFFFF"
-            android:indeterminate="true" />
+            android:gravity="center" />
 
     </LinearLayout>
 
-</RelativeLayout>
+    <!-- ✅ NUEVO: Botón hamburguesa (3 puntos) en la esquina superior derecha -->
+    <ImageView
+        android:id="@+id/menuButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_menu_dots"
+        android:contentDescription="Menú"
+        android:layout_gravity="top|end"
+        android:scaleType="centerInside"
+        android:padding="12dp"
+        android:tint="@color/white"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground" />
+
+</FrameLayout>

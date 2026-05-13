@@ -2,18 +2,18 @@ package com.example.music1;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.widget.VideoView;
+import android.widget.Toast;
 import android.util.Log;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.PopupMenu;
 
 public class LoadingActivity extends AppCompatActivity {
     private static final String TAG = "LoadingActivity";
-    private VideoView loadingVideo;
-    private static final int LOADING_DURATION = 2500;
+    private static final int LOADING_DURATION = 1200; // ✅ Reducido: pantalla negra rápida
     private SharedPreferences prefs;
 
     @Override
@@ -22,22 +22,15 @@ public class LoadingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_loading);
         Log.i(TAG, "onCreate: Iniciando LoadingActivity");
 
-        loadingVideo = findViewById(R.id.loadingVideo);
         prefs = getSharedPreferences("music1", MODE_PRIVATE);
 
-        try {
-            Uri videoUri = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.loading_video);
-            loadingVideo.setVideoURI(videoUri);
-            loadingVideo.setOnPreparedListener(mp -> {
-                mp.setVolume(0f, 0f);
-                loadingVideo.start();
-                Log.d(TAG, "Video de loading iniciado");
-            });
-        } catch (Exception e) {
-            Log.e(TAG, "onCreate: Error al cargar video", e);
-            loadingVideo.setVisibility(android.view.View.GONE);
+        // ✅ NUEVO: Botón hamburguesa (3 puntos) en la pantalla de carga
+        View menuButton = findViewById(R.id.menuButton);
+        if (menuButton != null) {
+            menuButton.setOnClickListener(v -> mostrarMenuHamburguesa(v));
         }
 
+        // Iniciar flujo normal después del tiempo de carga
         new Handler().postDelayed(() -> {
             boolean esPrimeraVez = esPrimeraVez();
             Log.d(TAG, "postDelayed: esPrimeraVez=" + esPrimeraVez);
@@ -57,6 +50,37 @@ public class LoadingActivity extends AppCompatActivity {
             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
             finish();
         }, LOADING_DURATION);
+    }
+
+    // ✅ NUEVO: Menú hamburguesa con opciones de navegación
+    private void mostrarMenuHamburguesa(View v) {
+        PopupMenu popupMenu = new PopupMenu(this, v);
+        popupMenu.getMenuInflater().inflate(R.menu.menu_hamburguesa, popupMenu.getMenu());
+
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+
+            if (itemId == R.id.menu_inicio) {
+                // Ir a Inicio (MainActivity o pantalla principal)
+                Intent intent = new Intent(LoadingActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            } else if (itemId == R.id.menu_perfil) {
+                // Ir a Perfil
+                Intent intent = new Intent(LoadingActivity.this, PerfilUsuarioActivity.class);
+                startActivity(intent);
+                finish();
+                return true;
+            } else if (itemId == R.id.menu_configuracion) {
+                // Por ahora: mostrar mensaje (puedes crear SettingsActivity después)
+                Toast.makeText(LoadingActivity.this, "Configuración - Proximamente", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            return false;
+        });
+
+        popupMenu.show();
     }
 
     // ✅ CORREGIDO: Detección correcta de primera vez

@@ -53,7 +53,14 @@ public class ReproductorOnlineActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+<<<<<<< HEAD
     // Volver a la Activity anterior en lugar de cerrar la app
     finish();
 }
 }
+=======
+        // ✅ ARREGLADO: Volver a la Activity anterior en lugar de cerrar la app
+        finish();
+    }
+}
+>>>>>>> 60c00e868a8ddb118105ee33267c7d02a7e6cd5b
