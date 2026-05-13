@@ -7,9 +7,9 @@ import android.os.Handler;
 import android.widget.Toast;
 import android.util.Log;
 import android.view.View;
+import android.widget.PopupMenu;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.PopupMenu;
 
 public class LoadingActivity extends AppCompatActivity {
     private static final String TAG = "LoadingActivity";
