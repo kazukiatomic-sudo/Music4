@@ -58,14 +58,7 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
         emptyState = findViewById(R.id.emptyState);
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        
-        // ✅ ARREGLO RETROCESO: Cambiamos finish() por un Intent claro para no cerrar la app
-        toolbar.setNavigationOnClickListener(v -> {
-            Intent intent = new Intent(this, TipoMusicaActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
-            finish();
-        });
+        toolbar.setNavigationOnClickListener(v -> finish());
         setSupportActionBar(toolbar);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -74,50 +67,30 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
             intent.putExtra("cancion_serializada", cancion);
             intent.putExtra("lista_posicion", listaCanciones.indexOf(cancion));
             intent.putExtra("lista_canciones", new ArrayList<>(listaCanciones));
-            // ✅ IMPORTANTE: No llamar a finish() aquí para que el reproductor pueda volver
             startActivity(intent);
         });
         recyclerView.setAdapter(adapter);
     }
 
-    // ✅ PUNTO LÍDER: Los 3 puntos superiores (Inflar el menú)
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Asegúrate de que el archivo menu_lista_musica.xml exista en res/menu
         getMenuInflater().inflate(R.menu.menu_lista_musica, menu);
         return true;
     }
 
-    // ✅ PUNTO LÍDER: Funcionalidad de los botones del menú
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_search) {
+        if (item.getItemId() == R.id.action_search) {
             startActivity(new Intent(this, BusquedaMusicaActivity.class));
             return true;
-        } else if (id == R.id.action_favoritos) {
+        } else if (item.getItemId() == R.id.action_favoritos) {
             startActivity(new Intent(this, FavoritoActivity.class));
             return true;
-        } else if (id == R.id.action_perfil) { // Añadí este por si quieres ir al perfil
-            startActivity(new Intent(this, PerfilUsuarioActivity.class));
-            return true;
-        } else if (id == R.id.action_sugerir) {
+        } else if (item.getItemId() == R.id.action_sugerir) {
             startActivity(new Intent(this, SugerirActivity.class));
             return true;
         }
-        
         return super.onOptionsItemSelected(item);
-    }
-
-    // ✅ ARREGLO RETROCESO: Controlar el botón físico del celular
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        // Esto asegura que vuelva al menú principal de "Tipo de Música" y no cierre la app
-        Intent intent = new Intent(this, TipoMusicaActivity.class);
-        startActivity(intent);
-        finish();
     }
 
     private void checkPermissionsAndLoadMusic() {
@@ -142,6 +115,7 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
                 progressBar.setVisibility(View.GONE);
                 if (canciones.isEmpty()) {
                     emptyState.setVisibility(View.VISIBLE);
+                    Toast.makeText(this, "No hay canciones en el dispositivo", Toast.LENGTH_LONG).show();
                 } else {
                     listaCanciones.clear();
                     listaCanciones.addAll(canciones);
@@ -155,6 +129,7 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
     private List<Cancion> getMusicFromDevice() {
         List<Cancion> canciones = new ArrayList<>();
         ContentResolver contentResolver = getContentResolver();
+
         Uri collection = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         String[] projection = {
                 MediaStore.Audio.Media._ID,
@@ -197,6 +172,7 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Error al leer música", e);
         }
+
         return canciones;
     }
 
@@ -208,6 +184,8 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
                 cargarMusicaLocal();
             } else {
                 Toast.makeText(this, "Permiso denegado", Toast.LENGTH_LONG).show();
+                emptyState.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.GONE);
             }
         }
     }
