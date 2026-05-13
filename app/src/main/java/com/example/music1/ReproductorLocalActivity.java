@@ -180,18 +180,6 @@ public class ReproductorLocalActivity extends AppCompatActivity {
 
     private void inicializarMediaPlayer() {
         try {
-<<<<<<< HEAD
-        if (mediaPlayer != null) {
-            try {
-            if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
-            }
-            mediaPlayer.release();
-            } catch (Exception e) {
-            Log.e(TAG, "Error al detener MediaPlayer", e);
-            }
-            mediaPlayer = null;
-=======
             if (mediaPlayer != null) {
                 try {
                     if (mediaPlayer.isPlaying()) {
@@ -202,7 +190,6 @@ public class ReproductorLocalActivity extends AppCompatActivity {
                     Log.e(TAG, "Error al detener MediaPlayer anterior", e);
                 }
                 mediaPlayer = null;
->>>>>>> 60c00e868a8ddb118105ee33267c7d02a7e6cd5b
             }
 
             if (cancionActual == null) {
