@@ -16,9 +16,11 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.music1.utils.SessionManager;
 import com.google.android.material.imageview.ShapeableImageView;
+import com.google.android.material.navigation.NavigationView;
 
 public class TipoMusicaActivity extends AppCompatActivity {
     private static final String TAG = "TipoMusicaActivity";
@@ -28,6 +30,8 @@ public class TipoMusicaActivity extends AppCompatActivity {
     private TextView tvNombreUsuario, tvTituloSeleccion, tvSubtitulo, tvFooter;
     private SharedPreferences prefs;
     private SessionManager sessionManager;
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +42,7 @@ public class TipoMusicaActivity extends AppCompatActivity {
         initViews();
         cargarDatosUsuario();
         setupListeners();
+        setupNavigationMenu();
         iniciarAnimaciones();
     }
 
@@ -52,6 +57,8 @@ public class TipoMusicaActivity extends AppCompatActivity {
         tvTituloSeleccion = findViewById(R.id.tvTituloSeleccion);
         tvSubtitulo = findViewById(R.id.tvSubtitulo);
         tvFooter = findViewById(R.id.tvFooter);
+        drawerLayout = findViewById(R.id.drawerLayout);
+        navigationView = findViewById(R.id.navigationView);
 
         prefs = getSharedPreferences("music1", MODE_PRIVATE);
         sessionManager = new SessionManager(this);
@@ -63,10 +70,27 @@ public class TipoMusicaActivity extends AppCompatActivity {
 
         tvNombreUsuario.setText(nombre);
 
-        if (avatar == 1) {
-            ivAvatarPerfil.setImageResource(R.drawable.avatar1);
-        } else {
-            ivAvatarPerfil.setImageResource(R.drawable.avatar2);
+        switch(avatar) {
+            case 1:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar1);
+                break;
+            case 2:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar2);
+                break;
+            case 3:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar3);
+                break;
+            case 4:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar4);
+                break;
+            case 5:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar5);
+                break;
+            case 6:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar6);
+                break;
+            default:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar1);
         }
     }
 
@@ -100,20 +124,32 @@ public class TipoMusicaActivity extends AppCompatActivity {
         btnOnline.setOnClickListener(clickListener);
     }
 
+    private void setupNavigationMenu() {
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_profile) {
+                startActivity(new Intent(this, AvatarActivity.class));
+            } else if (id == R.id.nav_logout) {
+                sessionManager.logout();
+                startActivity(new Intent(this, SplashActivity.class));
+                finish();
+            }
+            drawerLayout.closeDrawer(navigationView);
+            return true;
+        });
+    }
+
     private void irALocal() {
         Intent intent = new Intent(TipoMusicaActivity.this, ListaMusicaLocalActivity.class);
         startActivity(intent);
     }
 
     private void irAOnline() {
-        // Verificar si ya hay sesión activa
         SessionManager sessionManager = new SessionManager(this);
         if (sessionManager.isLoggedIn()) {
-            // Si ya está logueado, va directo al perfil
             Intent intent = new Intent(TipoMusicaActivity.this, PerfilUsuarioActivity.class);
             startActivity(intent);
         } else {
-            // Si no, va al login
             Intent intent = new Intent(TipoMusicaActivity.this, LoginActivity.class);
             startActivity(intent);
         }
@@ -182,5 +218,14 @@ public class TipoMusicaActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         cargarDatosUsuario();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(navigationView)) {
+            drawerLayout.closeDrawer(navigationView);
+        } else {
+            super.onBackPressed();
+        }
     }
 }
