@@ -32,34 +32,27 @@ public class MainActivity extends AppCompatActivity {
 
         prefs = getSharedPreferences("music1", MODE_PRIVATE);
 
-        // ✅ Verificar si ya pasó por el flujo completo
-        String nombre = prefs.getString("nombre", "");
-        boolean bienvenidaCompletada = prefs.getBoolean("bienvenida_completada", false);
-
-        if (bienvenidaCompletada && !nombre.isEmpty()) {
-            Log.d(TAG, "Usuario ya registrado: " + nombre);
-            startActivity(new Intent(MainActivity.this, TipoMusicaActivity.class));
+// ✅ Usar el sistema de sesión unificado para evitar cierres
+        if (sessionManager.isLoggedIn()) {
+            startActivity(new Intent(MainActivity.this, PerfilUsuarioActivity.class));
             finish();
             return;
         }
 
         btnGuardar.setOnClickListener(v -> {
-            String nombreUsuario = editNombre.getText().toString().trim();
-            Log.d(TAG, "btnGuardar click: nombre=" + nombreUsuario);
+            if (editNombre == null) return; // Evita que la app se cierre si el ID está mal
 
+            String nombreUsuario = editNombre.getText().toString().trim();
             if (nombreUsuario.isEmpty()) {
-                editNombre.setError("El nombre es requerido");
-                Toast.makeText(this, "El nombre es requerido", Toast.LENGTH_SHORT).show();
+                editNombre.setError("Escribe tu nombre");
                 return;
             }
 
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString("nombre", nombreUsuario);
-            editor.apply();
-            Log.i(TAG, "Nombre guardado: " + nombreUsuario);
-
-            Intent i = new Intent(MainActivity.this, AvatarActivity.class);
-            startActivity(i);
+            // Guardar nombre y crear sesión básica
+            sessionManager.guardarUsuario(new com.example.music1.models.Usuario(0, nombreUsuario, ""));
+            
+            // Ir a la siguiente pantalla
+            startActivity(new Intent(MainActivity.this, AvatarActivity.class));
         });
     }
 
