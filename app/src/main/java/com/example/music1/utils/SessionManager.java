@@ -43,9 +43,4 @@ public class SessionManager {
     public boolean isLoggedIn() {
         return prefs.getInt(KEY_USER_ID, -1) != -1;
     }
-public void logout() {
-    SharedPreferences.Editor editor = prefs.edit();
-    editor.clear();
-    editor.apply();
-}
 }

@@ -53,7 +53,10 @@ public class ReproductorOnlineActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        // ✅ ARREGLADO: Volver a la Activity anterior en lugar de cerrar la app
-        finish();
+        if (webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            super.onBackPressed();
+        }
     }
 }

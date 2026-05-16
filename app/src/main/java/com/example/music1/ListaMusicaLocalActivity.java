@@ -22,14 +22,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.music1.adapters.ListaMusicaAdapter;
 import com.example.music1.models.Cancion;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +42,6 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
     private List<Cancion> listaCanciones = new ArrayList<>();
     private ProgressBar progressBar;
     private LinearLayout emptyState;
-    private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,17 +56,9 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
         emptyState = findViewById(R.id.emptyState);
-        drawerLayout = findViewById(R.id.drawerLayout);
-        navigationView = findViewById(R.id.navigationView);
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
-        toolbar.setNavigationOnClickListener(v -> {
-            if (drawerLayout.isDrawerOpen(navigationView)) {
-                drawerLayout.closeDrawer(navigationView);
-            } else {
-                drawerLayout.openDrawer(navigationView);
-            }
-        });
+        toolbar.setNavigationOnClickListener(v -> finish());
         setSupportActionBar(toolbar);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -82,24 +70,6 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
             startActivity(intent);
         });
         recyclerView.setAdapter(adapter);
-
-        // Configurar navegación del menú
-        setupNavigationMenu();
-    }
-
-    private void setupNavigationMenu() {
-        navigationView.setNavigationItemSelectedListener(item -> {
-            int id = item.getItemId();
-            if (id == R.id.nav_search) {
-                startActivity(new Intent(this, BusquedaMusicaActivity.class));
-            } else if (id == R.id.nav_favorites) {
-                startActivity(new Intent(this, FavoritoActivity.class));
-            } else if (id == R.id.nav_suggest) {
-                startActivity(new Intent(this, SugerirActivity.class));
-            }
-            drawerLayout.closeDrawer(navigationView);
-            return true;
-        });
     }
 
     @Override
@@ -217,16 +187,6 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
                 emptyState.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
             }
-        }
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(navigationView)) {
-            drawerLayout.closeDrawer(navigationView);
-        } else {
-            startActivity(new Intent(this, TipoMusicaActivity.class));
-            finish();
         }
     }
 }

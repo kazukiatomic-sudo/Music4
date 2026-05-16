@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         prefs = getSharedPreferences("music1", MODE_PRIVATE);
 
-// ✅ Verificar si ya pasó por el flujo completo
+        // ✅ Verificar si ya pasó por el flujo completo
         String nombre = prefs.getString("nombre", "");
         boolean bienvenidaCompletada = prefs.getBoolean("bienvenida_completada", false);
 
