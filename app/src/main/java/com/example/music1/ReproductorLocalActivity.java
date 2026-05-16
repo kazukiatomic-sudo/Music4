@@ -8,6 +8,7 @@ import android.media.audiofx.Equalizer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -26,7 +27,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.music1.models.Cancion;
 import com.example.music1.models.Favorito;
-import com.example.music1.models.Usuario;
 import com.example.music1.utils.FavoritosManager;
 import com.example.music1.utils.HistorialManager;
 import com.example.music1.utils.SessionManager;
@@ -50,7 +50,7 @@ public class ReproductorLocalActivity extends AppCompatActivity {
     private SeekBar seekBar;
 
     private MediaPlayer mediaPlayer;
-    private final Handler handler = new Handler();
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private Cancion cancionActual;
     private List<Cancion> playlistActual = new ArrayList<>();
     private int posicionActual = 0;
@@ -180,6 +180,12 @@ public class ReproductorLocalActivity extends AppCompatActivity {
 
     private void inicializarMediaPlayer() {
         try {
+            // FIX: liberar el ecualizador anterior antes de liberar el MediaPlayer
+            if (equalizer != null) {
+                equalizer.release();
+                equalizer = null;
+            }
+
             if (mediaPlayer != null) {
                 mediaPlayer.release();
                 mediaPlayer = null;
@@ -232,7 +238,7 @@ public class ReproductorLocalActivity extends AppCompatActivity {
 
         try {
             int audioSessionId = mediaPlayer.getAudioSessionId();
-            if (audioSessionId != -1 && equalizer == null) {
+            if (audioSessionId != -1) {
                 equalizer = new Equalizer(0, audioSessionId);
                 equalizer.setEnabled(true);
             }
@@ -302,7 +308,6 @@ public class ReproductorLocalActivity extends AppCompatActivity {
             else Toast.makeText(this, "Ecualizador no disponible", Toast.LENGTH_SHORT).show();
         });
 
-        // ✅ CORREGIDO: Favoritos sin pedir login para música local
         favButton.setOnClickListener(v -> toggleFavoritoLocal());
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -315,7 +320,6 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         });
     }
 
-    // ✅ NUEVO: Favoritos SOLO locales (sin login)
     private void toggleFavoritoLocal() {
         if (cancionActual == null) return;
 
@@ -371,9 +375,7 @@ public class ReproductorLocalActivity extends AppCompatActivity {
             posicionActual = nuevaPosicion;
         } else {
             posicionActual++;
-            if (posicionActual >= playlistActual.size()) {
-                posicionActual = 0;
-            }
+            if (posicionActual >= playlistActual.size()) posicionActual = 0;
         }
 
         cancionActual = playlistActual.get(posicionActual);
@@ -392,9 +394,7 @@ public class ReproductorLocalActivity extends AppCompatActivity {
             posicionActual = nuevaPosicion;
         } else {
             posicionActual--;
-            if (posicionActual < 0) {
-                posicionActual = playlistActual.size() - 1;
-            }
+            if (posicionActual < 0) posicionActual = playlistActual.size() - 1;
         }
 
         cancionActual = playlistActual.get(posicionActual);
@@ -423,14 +423,19 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
     }
 
-    // ✅ CORREGIDO: Botón físico "Atrás" NO detiene la música
+    // FIX: onBackPressed ahora solo vuelve a la pantalla anterior en lugar de mover toda la tarea al fondo
     @Override
     public void onBackPressed() {
-        // Mover la actividad a segundo plano en lugar de destruirla
-        moveTaskToBack(true);
-        // No llamar a super.onBackPressed() para no destruir la Activity
-        // La música sigue sonando
-        Toast.makeText(this, "🎵 La música sigue sonando en segundo plano", Toast.LENGTH_SHORT).show();
+        super.onBackPressed();
+    }
+
+    // FIX: onResume reanuda la actualización del seekbar si la canción ya estaba sonando
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isPlaying && mediaPlayer != null) {
+            handler.post(updateSeekBar);
+        }
     }
 
     @Override
@@ -520,12 +525,16 @@ public class ReproductorLocalActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        handler.removeCallbacks(updateSeekBar);
+        // FIX: liberar el ecualizador y el MediaPlayer correctamente al destruir la actividad
         if (equalizer != null) {
             equalizer.release();
             equalizer = null;
         }
-        handler.removeCallbacks(updateSeekBar);
-        // ⚠️ NO liberamos el MediaPlayer aquí para que siga sonando en segundo plano
-        // Si quieres detenerlo al cerrar la app, se manejará en otro lado
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) mediaPlayer.stop();
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 }

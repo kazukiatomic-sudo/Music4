@@ -4,27 +4,37 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Base64;
 import android.util.Log;
 
-import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * FIX: Las portadas ya NO se guardan en SharedPreferences como Base64 (límite ~1MB,
+ * lento y propenso a corrupción). Ahora se guardan como archivos JPEG en el
+ * directorio interno de la app (getFilesDir()/covers/), y solo se almacena
+ * la ruta en SharedPreferences.
+ */
 public class TagEditorManager {
     private static final String TAG = "TagEditorManager";
-    private static final String PREF_NAME = "music_tags_v2"; // ✅ Versión nueva
+    private static final String PREF_NAME = "music_tags_v3";
     private static TagEditorManager instance;
     private SharedPreferences prefs;
+    private File coversDir;
 
     private static final String PREFIX_TITULO = "titulo_";
     private static final String PREFIX_ARTISTA = "artista_";
     private static final String PREFIX_ALBUM = "album_";
-    private static final String PREFIX_PORTADA = "portada_";
+    private static final String PREFIX_PORTADA_PATH = "portada_path_";
 
     private TagEditorManager(Context context) {
         prefs = context.getApplicationContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        Log.d(TAG, "TagEditorManager inicializado");
+        coversDir = new File(context.getApplicationContext().getFilesDir(), "covers");
+        if (!coversDir.exists()) coversDir.mkdirs();
+        Log.d(TAG, "TagEditorManager inicializado. coversDir=" + coversDir.getAbsolutePath());
     }
 
     public static synchronized TagEditorManager getInstance(Context context) {
@@ -34,7 +44,6 @@ public class TagEditorManager {
         return instance;
     }
 
-    // ✅ CORREGIDO: Usa hash determinístico basado en ID + URI string
     private String getKey(long id, String uri) {
         String raw = id + "_" + (uri != null ? uri : "null");
         return md5(raw);
@@ -45,13 +54,10 @@ public class TagEditorManager {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] digest = md.digest(input.getBytes());
             StringBuilder sb = new StringBuilder();
-            for (byte b : digest) {
-                sb.append(String.format("%02x", b));
-            }
+            for (byte b : digest) sb.append(String.format("%02x", b));
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            Log.e(TAG, "md5 error", e);
-            return String.valueOf(input.hashCode()); // fallback
+            return String.valueOf(input.hashCode());
         }
     }
 
@@ -82,31 +88,47 @@ public class TagEditorManager {
         return guardado.isEmpty() ? albumOriginal : guardado;
     }
 
+    /**
+     * FIX: guarda la portada como archivo JPEG en disco, no en SharedPreferences.
+     */
     public void guardarPortada(long id, String uri, Bitmap bitmap) {
-        String encoded = bitmapToBase64(bitmap);
-        prefs.edit().putString(PREFIX_PORTADA + getKey(id, uri), encoded).apply();
-    }
-
-    public Bitmap getPortada(long id, String uri) {
-        String encoded = prefs.getString(PREFIX_PORTADA + getKey(id, uri), "");
-        if (!encoded.isEmpty()) {
-            return base64ToBitmap(encoded);
+        String key = getKey(id, uri);
+        File coverFile = new File(coversDir, key + ".jpg");
+        try (FileOutputStream fos = new FileOutputStream(coverFile)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fos);
+            prefs.edit().putString(PREFIX_PORTADA_PATH + key, coverFile.getAbsolutePath()).apply();
+            Log.d(TAG, "Portada guardada en: " + coverFile.getAbsolutePath());
+        } catch (IOException e) {
+            Log.e(TAG, "Error guardando portada", e);
         }
-        return null;
     }
 
+    /**
+     * FIX: lee la portada desde el archivo en disco.
+     */
+    public Bitmap getPortada(long id, String uri) {
+        String key = getKey(id, uri);
+        String path = prefs.getString(PREFIX_PORTADA_PATH + key, "");
+        if (path.isEmpty()) return null;
+
+        File coverFile = new File(path);
+        if (!coverFile.exists()) {
+            // El archivo fue eliminado externamente — limpiar la preferencia
+            prefs.edit().remove(PREFIX_PORTADA_PATH + key).apply();
+            return null;
+        }
+        return BitmapFactory.decodeFile(path);
+    }
+
+    /**
+     * FIX: eliminar portada borra el archivo en disco y la referencia en prefs.
+     */
     public void eliminarPortada(long id, String uri) {
-        prefs.edit().remove(PREFIX_PORTADA + getKey(id, uri)).apply();
-    }
-
-    private String bitmapToBase64(Bitmap bitmap) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 85, baos);
-        return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-    }
-
-    private Bitmap base64ToBitmap(String encoded) {
-        byte[] bytes = Base64.decode(encoded, Base64.DEFAULT);
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        String key = getKey(id, uri);
+        String path = prefs.getString(PREFIX_PORTADA_PATH + key, "");
+        if (!path.isEmpty()) {
+            new File(path).delete();
+            prefs.edit().remove(PREFIX_PORTADA_PATH + key).apply();
+        }
     }
 }

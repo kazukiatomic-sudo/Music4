@@ -13,8 +13,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.music1.api.RegistroRequest;
-import com.example.music1.api.RespuestaRegistro;
 import com.example.music1.api.ApiClient;
 import com.example.music1.api.MusicApi;
 import com.example.music1.api.RegistroRequest;

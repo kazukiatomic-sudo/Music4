@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -30,15 +31,21 @@ import java.util.List;
 
 public class BusquedaMusicaActivity extends AppCompatActivity {
     private static final String TAG = "BusquedaMusica";
+
     private EditText etBuscar;
     private ImageView ivClear;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView tvEmpty;
     private ResultadoBusquedaAdapter adapter;
-    private List<Cancion> todasLasCanciones = new ArrayList<>();
-    private Handler handler = new Handler();
+
+    private final List<Cancion> todasLasCanciones = new ArrayList<>();
+    // FIX: usar Looper.getMainLooper() para el Handler
+    private final Handler handler = new Handler(Looper.getMainLooper());
     private Runnable searchRunnable;
+
+    // FIX: flag para saber si la carga inicial terminó
+    private boolean cargaCompleta = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +71,10 @@ public class BusquedaMusicaActivity extends AppCompatActivity {
         adapter = new ResultadoBusquedaAdapter(new ArrayList<>(), this::onCancionClick);
         recyclerView.setAdapter(adapter);
 
+        // FIX: deshabilitar el campo de búsqueda hasta que la carga termine
+        etBuscar.setEnabled(false);
+        etBuscar.setHint("Cargando canciones...");
+
         ivClear.setOnClickListener(v -> {
             etBuscar.setText("");
             ivClear.setVisibility(View.GONE);
@@ -77,9 +88,16 @@ public class BusquedaMusicaActivity extends AppCompatActivity {
         progressBar.setVisibility(View.VISIBLE);
         new Thread(() -> {
             List<Cancion> canciones = obtenerTodasLasCanciones();
-            todasLasCanciones.clear();
-            todasLasCanciones.addAll(canciones);
-            runOnUiThread(() -> progressBar.setVisibility(View.GONE));
+            runOnUiThread(() -> {
+                todasLasCanciones.clear();
+                todasLasCanciones.addAll(canciones);
+                progressBar.setVisibility(View.GONE);
+                // FIX: habilitar la búsqueda solo cuando los datos ya están listos
+                cargaCompleta = true;
+                etBuscar.setEnabled(true);
+                etBuscar.setHint("Buscar por título, artista o álbum...");
+                Log.d(TAG, "Carga completa: " + todasLasCanciones.size() + " canciones");
+            });
         }).start();
     }
 
@@ -133,34 +151,31 @@ public class BusquedaMusicaActivity extends AppCompatActivity {
 
     private void setupSearch() {
         etBuscar.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (searchRunnable != null) {
-                    handler.removeCallbacks(searchRunnable);
-                }
+                if (searchRunnable != null) handler.removeCallbacks(searchRunnable);
+                // FIX: no buscar si la carga aún no terminó
+                if (!cargaCompleta) return;
                 searchRunnable = () -> buscar(s.toString());
                 handler.postDelayed(searchRunnable, 300);
                 ivClear.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
             }
 
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void afterTextChanged(Editable s) {}
         });
     }
 
     private void buscar(String query) {
         if (query.isEmpty()) {
-            runOnUiThread(() -> {
-                adapter.updateList(new ArrayList<>());
-                tvEmpty.setText("Escribe para buscar canciones");
-                tvEmpty.setVisibility(View.VISIBLE);
-            });
+            adapter.updateList(new ArrayList<>());
+            tvEmpty.setText("Escribe para buscar canciones");
+            tvEmpty.setVisibility(View.VISIBLE);
             return;
         }
 
+        progressBar.setVisibility(View.VISIBLE);
         new Thread(() -> {
             List<Cancion> resultados = new ArrayList<>();
             String lowerQuery = query.toLowerCase();
@@ -174,6 +189,7 @@ public class BusquedaMusicaActivity extends AppCompatActivity {
             }
 
             runOnUiThread(() -> {
+                progressBar.setVisibility(View.GONE);
                 if (resultados.isEmpty()) {
                     adapter.updateList(new ArrayList<>());
                     tvEmpty.setText("No se encontraron canciones");

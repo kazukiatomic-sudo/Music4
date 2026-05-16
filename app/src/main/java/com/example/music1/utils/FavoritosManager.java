@@ -2,6 +2,7 @@ package com.example.music1.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Looper;
 import android.util.Log;
 
 import com.example.music1.api.AddFavoritoRequest;
@@ -17,6 +18,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -24,7 +26,7 @@ import retrofit2.Response;
 
 public class FavoritosManager {
     private static final String TAG = "FavoritosManager";
-    private static final String PREF_NAME = "favoritos_v2"; // ✅ Nueva versión
+    private static final String PREF_NAME = "favoritos_v2";
     private static final String KEY_FAVORITOS = "lista_favoritos";
     private static FavoritosManager instance;
     private SharedPreferences prefs;
@@ -70,7 +72,8 @@ public class FavoritosManager {
     public boolean agregarFavorito(Favorito favorito) {
         Log.d(TAG, "agregarFavorito: " + favorito.getTitulo());
         for (Favorito f : favoritos) {
-            if (f.getId() == favorito.getId() && f.getUri().equals(favorito.getUri())) {
+            // FIX: usar Objects.equals para evitar NullPointerException si getUri() es null
+            if (f.getId() == favorito.getId() && Objects.equals(f.getUri(), favorito.getUri())) {
                 Log.w(TAG, "agregarFavorito: Ya existe en favoritos");
                 return false;
             }
@@ -85,7 +88,8 @@ public class FavoritosManager {
         Log.d(TAG, "quitarFavorito: ID=" + id);
         for (int i = 0; i < favoritos.size(); i++) {
             Favorito f = favoritos.get(i);
-            if (f.getId() == id && f.getUri().equals(uri)) {
+            // FIX: usar Objects.equals para evitar NullPointerException si getUri() es null
+            if (f.getId() == id && Objects.equals(f.getUri(), uri)) {
                 favoritos.remove(i);
                 guardarFavoritos();
                 Log.i(TAG, "quitarFavorito: Eliminado: " + f.getTitulo());
@@ -102,7 +106,8 @@ public class FavoritosManager {
 
     public boolean esFavorito(long id, String uri) {
         for (Favorito f : favoritos) {
-            if (f.getId() == id && f.getUri().equals(uri)) {
+            // FIX: usar Objects.equals para evitar NullPointerException si getUri() es null
+            if (f.getId() == id && Objects.equals(f.getUri(), uri)) {
                 return true;
             }
         }
@@ -114,8 +119,6 @@ public class FavoritosManager {
         favoritos.clear();
         guardarFavoritos();
     }
-
-    // ✅ MÉTODOS CON SINCRONIZACIÓN Y REINTENTOS
 
     public void agregarFavoritoConSync(Favorito favorito, int usuarioId) {
         agregarFavorito(favorito);
@@ -156,7 +159,8 @@ public class FavoritosManager {
                 } else {
                     Log.w(TAG, "Sincronización falló, reintento " + (intento + 1) + "/3: " + accion);
                     if (intento < 2) {
-                        new android.os.Handler().postDelayed(() ->
+                        // FIX: usar Looper.getMainLooper() para evitar crash en hilos sin Looper
+                        new android.os.Handler(Looper.getMainLooper()).postDelayed(() ->
                                 enviarAlServidorConReintento(apiCall, accion, intento + 1), 2000);
                     }
                 }
@@ -166,7 +170,8 @@ public class FavoritosManager {
             public void onFailure(Call<RespuestaSimple> call, Throwable t) {
                 Log.e(TAG, "Error de red en " + accion + ", reintento " + (intento + 1) + "/3", t);
                 if (intento < 2) {
-                    new android.os.Handler().postDelayed(() ->
+                    // FIX: usar Looper.getMainLooper() para evitar crash en hilos sin Looper
+                    new android.os.Handler(Looper.getMainLooper()).postDelayed(() ->
                             enviarAlServidorConReintento(apiCall, accion, intento + 1), 3000);
                 }
             }

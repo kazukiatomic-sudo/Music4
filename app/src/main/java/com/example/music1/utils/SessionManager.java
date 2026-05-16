@@ -2,45 +2,68 @@ package com.example.music1.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+
 import com.example.music1.models.Usuario;
+import com.google.gson.Gson;
 
 public class SessionManager {
-    private static final String PREF_NAME = "user_session";
-    private static final String KEY_USER_ID = "user_id";
-    private static final String KEY_USER_NAME = "user_name";
-    private static final String KEY_USER_EMAIL = "user_email";
-    private static final String KEY_USER_AVATAR = "user_avatar";
+    private static final String PREF_NAME = "session_pref";
+    private static final String KEY_IS_LOGGED_IN = "isLoggedIn";
+    private static final String KEY_USUARIO = "usuario";
 
+    // FIX: solo guardamos prefs, no un editor compartido
+    // Antes: editor = prefs.edit() en constructor podía causar colisiones entre instancias
     private SharedPreferences prefs;
-    private SharedPreferences.Editor editor;
+    private Gson gson;
 
     public SessionManager(Context context) {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        editor = prefs.edit();
+        gson = new Gson();
     }
 
     public void guardarUsuario(Usuario usuario) {
-        editor.putInt(KEY_USER_ID, usuario.getId());
-        editor.putString(KEY_USER_NAME, usuario.getNombre());
-        editor.putString(KEY_USER_EMAIL, usuario.getEmail());
-        editor.putInt(KEY_USER_AVATAR, usuario.getAvatar());
+        // FIX: obtener editor localmente en cada operación de escritura
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean(KEY_IS_LOGGED_IN, true);
+        editor.putString(KEY_USUARIO, gson.toJson(usuario));
         editor.apply();
     }
 
     public Usuario getUsuario() {
-        int id = prefs.getInt(KEY_USER_ID, -1);
-        if (id == -1) return null;
-        String nombre = prefs.getString(KEY_USER_NAME, "");
-        String email = prefs.getString(KEY_USER_EMAIL, "");
-        int avatar = prefs.getInt(KEY_USER_AVATAR, 1);
-        return new Usuario(id, nombre, email, avatar);
-    }
-
-    public void cerrarSesion() {
-        editor.clear().apply();
+        String json = prefs.getString(KEY_USUARIO, null);
+        if (json != null) {
+            try {
+                return gson.fromJson(json, Usuario.class);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
     }
 
     public boolean isLoggedIn() {
-        return prefs.getInt(KEY_USER_ID, -1) != -1;
+        return prefs.getBoolean(KEY_IS_LOGGED_IN, false);
+    }
+
+    public void cerrarSesion() {
+        // FIX: obtener editor localmente
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.clear();
+        editor.apply();
+    }
+
+    public int getUsuarioId() {
+        Usuario u = getUsuario();
+        return u != null ? u.getId() : -1;
+    }
+
+    public String getNombreUsuario() {
+        Usuario u = getUsuario();
+        return u != null ? u.getNombre() : "";
+    }
+
+    public int getAvatarUsuario() {
+        Usuario u = getUsuario();
+        return u != null ? u.getAvatar() : 1;
     }
 }

@@ -9,7 +9,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.music1.api.ApiClient;
 import com.example.music1.api.LoginRequest;
 import com.example.music1.api.MusicApi;
@@ -18,7 +20,9 @@ import com.example.music1.models.Favorito;
 import com.example.music1.models.FavoritoRemoto;
 import com.example.music1.utils.FavoritosManager;
 import com.example.music1.utils.SessionManager;
+
 import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -105,19 +109,27 @@ public class LoginActivity extends AppCompatActivity {
                     FavoritosManager manager = FavoritosManager.getInstance(LoginActivity.this);
                     manager.limpiarFavoritos();
                     for (FavoritoRemoto fr : response.body()) {
-                        Favorito fav = new Favorito(
-                                Long.parseLong(fr.cancion_id),
-                                fr.titulo,
-                                fr.artista,
-                                fr.album,
-                                fr.duracion,
-                                fr.uri,
-                                fr.album_id
-                        );
-                        manager.agregarFavorito(fav);
+                        // FIX: validar cancion_id antes de parsear para evitar NumberFormatException
+                        if (fr.cancion_id == null || fr.cancion_id.isEmpty()) continue;
+                        try {
+                            long id = Long.parseLong(fr.cancion_id);
+                            Favorito fav = new Favorito(
+                                    id,
+                                    fr.titulo,
+                                    fr.artista,
+                                    fr.album,
+                                    fr.duracion,
+                                    fr.uri,
+                                    fr.album_id
+                            );
+                            manager.agregarFavorito(fav);
+                        } catch (NumberFormatException e) {
+                            android.util.Log.e("LoginActivity", "cancion_id no válido: " + fr.cancion_id, e);
+                        }
                     }
                 }
             }
+
             @Override
             public void onFailure(Call<List<FavoritoRemoto>> call, Throwable t) {}
         });

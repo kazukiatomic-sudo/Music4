@@ -81,7 +81,6 @@ public class EditTagsDialog extends Dialog {
         btnCambiarPortada = findViewById(R.id.btnCambiarPortada);
     }
 
-    // ✅ MÉTODO PÚBLICO para recibir la imagen desde la Activity
     public void onImagePicked(Uri imageUri) {
         if (imageUri != null) {
             cargarImagenDesdeUri(imageUri);
@@ -98,8 +97,10 @@ public class EditTagsDialog extends Dialog {
     }
 
     private void cargarImagenDesdeUri(Uri imageUri) {
+        InputStream inputStream = null;
         try {
-            InputStream inputStream = getContext().getContentResolver().openInputStream(imageUri);
+            inputStream = getContext().getContentResolver().openInputStream(imageUri);
+            // FIX: decodificar el stream primero y cerrar en finally sin importar el resultado
             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
             if (bitmap != null) {
@@ -113,14 +114,17 @@ public class EditTagsDialog extends Dialog {
                 ivPortada.setImageBitmap(resized);
                 portadaCambiada = true;
                 btnEliminarPortada.setVisibility(View.VISIBLE);
-
-                if (inputStream != null) inputStream.close();
             } else {
                 Toast.makeText(getContext(), "No se pudo cargar la imagen", Toast.LENGTH_SHORT).show();
             }
         } catch (IOException e) {
             Log.e(TAG, "cargarImagenDesdeUri: Error", e);
             Toast.makeText(getContext(), "Error al cargar imagen", Toast.LENGTH_SHORT).show();
+        } finally {
+            // FIX: cerrar el InputStream siempre, incluso si bitmap fue null
+            if (inputStream != null) {
+                try { inputStream.close(); } catch (IOException e) { /* ignorar */ }
+            }
         }
     }
 
@@ -183,10 +187,7 @@ public class EditTagsDialog extends Dialog {
 
         Toast.makeText(getContext(), "✓ Guardado: " + nuevoTitulo, Toast.LENGTH_SHORT).show();
 
-        if (listener != null) {
-            listener.onTagsSaved();
-        }
-
+        if (listener != null) listener.onTagsSaved();
         dismiss();
     }
 }
