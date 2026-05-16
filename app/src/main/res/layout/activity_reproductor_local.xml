@@ -33,28 +33,29 @@
             android:orientation="vertical"
             android:padding="@dimen/spacing_m">
 
-            <!-- Contenedor del álbum -->
-            <FrameLayout
+            <!-- Contenedor del álbum — cuadrado centrado para que el disco circular no se corte -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
                 android:layout_marginBottom="@dimen/spacing_l">
 
                 <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="260dp"
+                    android:layout_height="260dp"
                     android:layout_gravity="center"
                     app:cardBackgroundColor="@android:color/transparent"
-                    app:cardCornerRadius="16dp"
+                    app:cardCornerRadius="130dp"
                     app:cardElevation="@dimen/elevation_high">
 
                     <ImageView
                         android:id="@+id/albumCover"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_width="260dp"
+                        android:layout_height="260dp"
                         android:scaleType="centerCrop"
                         android:src="@drawable/ic_disco" />
                 </androidx.cardview.widget.CardView>
-            </FrameLayout>
+            </LinearLayout>
 
             <!-- Info canción + Corazón -->
             <RelativeLayout
