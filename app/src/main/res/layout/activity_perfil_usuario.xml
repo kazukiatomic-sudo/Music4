@@ -171,6 +171,7 @@
                         android:textColor="@color/rojo_detener"
                         android:layout_marginStart="16dp" />
                 </LinearLayout>
+            <include layout="@layout/layout_miniplayer" />
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>

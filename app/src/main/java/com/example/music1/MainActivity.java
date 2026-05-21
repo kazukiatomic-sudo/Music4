@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.view.View;
 import android.widget.Toast;
 import android.util.Log;
+import com.example.music1.utils.MiniPlayerManager;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        MiniPlayerManager.setupMiniPlayer(this);
         Log.i(TAG, "onCreate: Iniciando MainActivity");
 
         editNombre = findViewById(R.id.editNombre);

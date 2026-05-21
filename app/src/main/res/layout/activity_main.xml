@@ -79,5 +79,7 @@
         android:backgroundTint="@color/verde_spotify"
 
         android:textColor="@color/white"/>
+        
+    <include layout="@layout/layout_miniplayer" />
 
 </LinearLayout>

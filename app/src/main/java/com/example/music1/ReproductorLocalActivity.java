@@ -28,6 +28,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -38,6 +39,7 @@ import com.example.music1.utils.HistorialManager;
 import com.example.music1.utils.SessionManager;
 import com.example.music1.utils.TagEditorManager;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.example.music1.utils.MiniPlayerManager;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -684,6 +686,10 @@ public class ReproductorLocalActivity extends AppCompatActivity {
             mediaPlayer.setVolume(1f, 1f);
             mediaPlayer.start();
             isPlaying = true;
+
+            MiniPlayerManager.tituloActual = cancionActual.getTitulo();
+            MiniPlayerManager.reproduciendo = true;
+            
             playPauseButton.setImageResource(R.drawable.ic_pause);
             albumCover.startAnimation(rotateAnimation);
             actualizarSeekBar();

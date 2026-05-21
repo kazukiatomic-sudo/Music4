@@ -121,5 +121,6 @@
                 android:visibility="gone" />
 
         </LinearLayout>
+        <include layout="@layout/layout_miniplayer" />
     </ScrollView>
 </LinearLayout>

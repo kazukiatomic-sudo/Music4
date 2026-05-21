@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -28,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.music1.adapters.ListaMusicaAdapter;
 import com.example.music1.models.Cancion;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.example.music1.utils.MiniPlayerManager;
 
 import java.util.ArrayList;
 import java.util.List;

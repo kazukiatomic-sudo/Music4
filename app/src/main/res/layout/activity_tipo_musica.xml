@@ -263,6 +263,8 @@
             android:gravity="center"
             android:layout_marginTop="@dimen/spacing_xl"
             android:alpha="0.0" />
+            
+        <include layout="@layout/layout_miniplayer" />
 
     </LinearLayout>
 </ScrollView>
