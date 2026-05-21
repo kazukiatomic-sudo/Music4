@@ -1,5 +1,6 @@
 package com.example.music1;
 
+import com.example.music1.utils.MiniPlayerManager;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -18,7 +19,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -29,7 +29,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.music1.adapters.ListaMusicaAdapter;
 import com.example.music1.models.Cancion;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.example.music1.utils.MiniPlayerManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +48,8 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista_musica_local);
+
+        MiniPlayerManager.setupMiniPlayer(this);
 
         initViews();
         checkPermissionsAndLoadMusic();

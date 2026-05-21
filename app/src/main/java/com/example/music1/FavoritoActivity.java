@@ -1,5 +1,6 @@
 package com.example.music1;
 
+import com.example.music1.utils.MiniPlayerManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -15,7 +16,6 @@ import com.example.music1.adapters.FavoritoAdapter;
 import com.example.music1.models.Favorito;
 import com.example.music1.utils.FavoritosManager;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.example.music1.utils.MiniPlayerManager;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -31,6 +31,7 @@ public class FavoritoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favoritos);
+
         MiniPlayerManager.setupMiniPlayer(this);
 
         initViews();

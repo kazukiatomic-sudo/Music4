@@ -1,5 +1,6 @@
 package com.example.music1;
 
+import com.example.music1.utils.MiniPlayerManager;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Intent;
@@ -25,7 +26,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.music1.adapters.ResultadoBusquedaAdapter;
 import com.example.music1.models.Cancion;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.example.music1.utils.MiniPlayerManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +52,7 @@ public class BusquedaMusicaActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_busqueda_musica);
+
         MiniPlayerManager.setupMiniPlayer(this);
 
         initViews();

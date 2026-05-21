@@ -59,19 +59,15 @@
                 android:layout_height="wrap_content"
                 android:text="Las canciones aparecerán aquí"
                 style="@style/Text.Body" />
-        </LinearLayout>
+            <include layout="@layout/layout_miniplayer" />
+</LinearLayout>
 
         <!-- RecyclerView con la lista de canciones -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible"
-            android:paddingBottom="80dp" />
-            
+            android:visibility="visible" />
 
     </FrameLayout>
-
-    <include layout="@layout/layout_miniplayer" />
-    
 </LinearLayout>

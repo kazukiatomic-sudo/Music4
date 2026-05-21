@@ -38,11 +38,10 @@ public class MiniPlayerManager {
         }
 
         btnPlay.setOnClickListener(v -> {
+            reproduciendo = !reproduciendo;
 
             Intent intent = new Intent("ACTION_TOGGLE_PLAY");
             activity.sendBroadcast(intent);
-
-            reproduciendo = !reproduciendo;
 
             if (reproduciendo) {
                 btnPlay.setImageResource(R.drawable.ic_pause);
@@ -54,7 +53,6 @@ public class MiniPlayerManager {
         });
 
         btnAbrir.setOnClickListener(v -> {
-
             Intent intent = new Intent(activity, ReproductorLocalActivity.class);
             activity.startActivity(intent);
         });

@@ -51,7 +51,8 @@
                     style="@style/Text.Caption"
                     android:textColor="@color/accento_principal"
                     android:padding="@dimen/spacing_xs" />
-            </LinearLayout>
+                <include layout="@layout/layout_miniplayer" />
+</LinearLayout>
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -121,6 +122,5 @@
                 android:visibility="gone" />
 
         </LinearLayout>
-        <include layout="@layout/layout_miniplayer" />
     </ScrollView>
 </LinearLayout>

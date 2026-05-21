@@ -60,7 +60,8 @@
                 android:tint="@color/texto_secundario"
                 android:visibility="gone"
                 android:padding="4dp" />
-        </LinearLayout>
+            <include layout="@layout/layout_miniplayer" />
+</LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Resultados -->
@@ -92,9 +93,7 @@
             android:id="@+id/recyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
-            android:paddingBottom="80dp" />
+            android:visibility="gone" />
     </FrameLayout>
-    <include layout="@layout/layout_miniplayer" />
 
 </LinearLayout>

@@ -96,7 +96,8 @@
                         android:layout_height="24dp"
                         android:src="@drawable/ic_chevron_right"
                         android:tint="@color/texto_secundario" />
-                </LinearLayout>
+                    <include layout="@layout/layout_miniplayer" />
+</LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <!-- Tarjeta: Historial -->
@@ -171,7 +172,6 @@
                         android:textColor="@color/rojo_detener"
                         android:layout_marginStart="16dp" />
                 </LinearLayout>
-            <include layout="@layout/layout_miniplayer" />
             </androidx.cardview.widget.CardView>
 
         </LinearLayout>

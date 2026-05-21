@@ -63,7 +63,8 @@
                         android:text="Usuario"
                         style="@style/Text.H3"
                         android:textColor="@color/texto_primario" />
-                </LinearLayout>
+                    <include layout="@layout/layout_miniplayer" />
+</LinearLayout>
 
                 <!-- Icono de bienvenida -->
                 <ImageView
@@ -263,8 +264,6 @@
             android:gravity="center"
             android:layout_marginTop="@dimen/spacing_xl"
             android:alpha="0.0" />
-            
-        <include layout="@layout/layout_miniplayer" />
 
     </LinearLayout>
 </ScrollView>

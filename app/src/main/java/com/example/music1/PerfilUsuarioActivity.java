@@ -1,5 +1,6 @@
 package com.example.music1;
 
+import com.example.music1.utils.MiniPlayerManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -11,7 +12,6 @@ import androidx.cardview.widget.CardView;
 
 import com.example.music1.models.Usuario;
 import com.example.music1.utils.SessionManager;
-import com.example.music1.utils.MiniPlayerManager;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.imageview.ShapeableImageView;
 
@@ -27,8 +27,9 @@ public class PerfilUsuarioActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_perfil_usuario);
-        
+
         MiniPlayerManager.setupMiniPlayer(this);
+
         sessionManager = new SessionManager(this);
         usuario = sessionManager.getUsuario();
 

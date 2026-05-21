@@ -1,5 +1,6 @@
 package com.example.music1;
 
+import com.example.music1.utils.MiniPlayerManager;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,9 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.example.music1.utils.SessionManager;
-import com.example.music1.utils.MiniPlayerManager;
 import com.google.android.material.imageview.ShapeableImageView;
-
 
 public class TipoMusicaActivity extends AppCompatActivity {
     private static final String TAG = "TipoMusicaActivity";
@@ -35,9 +34,9 @@ public class TipoMusicaActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tipo_musica);
+
         MiniPlayerManager.setupMiniPlayer(this);
         Log.i(TAG, "onCreate: Iniciando TipoMusicaActivity");
-        
 
         initViews();
         cargarDatosUsuario();
