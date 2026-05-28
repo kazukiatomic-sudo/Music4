@@ -297,25 +297,6 @@ public class MusicPlayerService extends Service {
         return cancionActual;
     }
 
-
-    public void togglePlayPause() {
-        if (mediaPlayer == null) return;
-        if (mediaPlayer.isPlaying()) {
-            pausarReproduccion();
-        } else {
-            reanudarReproduccion();
-        }
-        actualizarNotificacion();
-    }
-
-    public boolean isPlayingNow() {
-        return mediaPlayer != null && mediaPlayer.isPlaying();
-    }
-
-    private void actualizarNotificacion() {
-        mostrarNotificacion();
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();

@@ -900,7 +900,31 @@ public class ReproductorLocalActivity extends AppCompatActivity {
     // ✅ CORREGIDO: onBackPressed con mejor manejo al salir
     @Override
     public void onBackPressed() {
-        finish();
+        new AlertDialog.Builder(this)
+                .setTitle("Salir del reproductor")
+                .setMessage("¿Qué deseas hacer?")
+                .setPositiveButton("Solo salir (música sigue)", (d, w) -> {
+                    moveTaskToBack(true);
+                    Toast.makeText(this, "Música en segundo plano. Usa la notificación para volver.", Toast.LENGTH_LONG).show();
+                })
+                .setNegativeButton("Detener música y salir", (d, w) -> {
+                    if (mediaPlayer != null) {
+                        try {
+                            if (mediaPlayer.isPlaying()) {
+                                mediaPlayer.stop();
+                            }
+                            mediaPlayer.release();
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error al detener MediaPlayer", e);
+                        }
+                        mediaPlayer = null;
+                    }
+                    stopService(new Intent(this, com.example.music1.utils.MusicPlayerService.class));
+                    isPlaying = false;
+                    finish();
+                })
+                .setNeutralButton("Cancelar", null)
+                .show();
     }
 
     // FIX Alto 2: Receptor para controlar el MediaPlayer desde la NowPlayingBar
