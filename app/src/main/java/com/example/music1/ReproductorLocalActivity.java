@@ -897,10 +897,26 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
     }
 
-    // ✅ CORREGIDO: onBackPressed con mejor manejo al salir
     @Override
     public void onBackPressed() {
-        finish();
+        if (mediaPlayer != null) {
+            try {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                }
+                mediaPlayer.stop();
+                mediaPlayer.release();
+            } catch (Exception e) {
+                Log.e(TAG, "Error cerrando reproductor", e);
+            }
+            mediaPlayer = null;
+        }
+
+        isPlaying = false;
+        stopService(new Intent(this, com.example.music1.utils.MusicPlayerService.class));
+        handler.removeCallbacks(updateSeekBar);
+
+        super.onBackPressed();
     }
 
     // FIX Alto 2: Receptor para controlar el MediaPlayer desde la NowPlayingBar
@@ -952,6 +968,19 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         super.onDestroy();
         handler.removeCallbacks(updateSeekBar);
         cancelarSleepTimer();
+
+        try {
+            if (mediaPlayer != null) {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.stop();
+                }
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error liberando MediaPlayer", e);
+        }
+
         if (equalizer != null) {
             equalizer.release();
             equalizer = null;

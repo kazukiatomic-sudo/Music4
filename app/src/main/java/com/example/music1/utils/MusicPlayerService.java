@@ -189,10 +189,6 @@ public class MusicPlayerService extends Service {
                 .setSmallIcon(R.drawable.ic_music_note)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
-                .addAction(R.drawable.ic_previous, "Anterior", pendingIntent)
-                .addAction(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play, isPlaying ? "Pausar" : "Reproducir", pendingIntent)
-                .addAction(R.drawable.ic_next, "Siguiente", pendingIntent)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setOngoing(true);
 
         startForeground(NOTIFICATION_ID, builder.build());
