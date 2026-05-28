@@ -945,6 +945,16 @@ public class ReproductorLocalActivity extends AppCompatActivity {
                     if (isPlaying) pausarCancion(); else reproducirCancion();
                 } else if ("NEXT".equals(action)) {
                     siguienteCancion();
+                } else if ("PREV".equals(action)) {
+                    cancionAnterior();
+                } else if ("SHUFFLE".equals(action)) {
+                    isShuffle = intent.getBooleanExtra("value", false);
+                    shuffleButton.setAlpha(isShuffle ? 1.0f : 0.5f);
+                } else if ("REPEAT".equals(action)) {
+                    isRepeat = intent.getBooleanExtra("value", false);
+                    repeatButton.setAlpha(isRepeat ? 1.0f : 0.5f);
+                } else if ("STOP".equals(action)) {
+                    pausarCancion();
                 }
             }
         };
