@@ -301,9 +301,9 @@ public class MusicPlayerService extends Service {
     public void togglePlayPause() {
         if (mediaPlayer == null) return;
         if (mediaPlayer.isPlaying()) {
-            pauseMusic();
+            pausarReproduccion();
         } else {
-            resumeMusic();
+            reanudarReproduccion();
         }
         actualizarNotificacion();
     }
@@ -313,7 +313,7 @@ public class MusicPlayerService extends Service {
     }
 
     private void actualizarNotificacion() {
-        startForeground(NOTIFICATION_ID, crearNotificacion());
+        mostrarNotificacion();
     }
 
     @Override
