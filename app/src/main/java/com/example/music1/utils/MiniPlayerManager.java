@@ -38,10 +38,14 @@ public class MiniPlayerManager {
         }
 
         btnPlay.setOnClickListener(v -> {
-            reproduciendo = !reproduciendo;
+            MusicPlayerService service = MusicPlayerService.getInstance();
 
-            Intent intent = new Intent("ACTION_TOGGLE_PLAY");
-            activity.sendBroadcast(intent);
+            if (service != null) {
+                service.togglePlayPause();
+                reproduciendo = service.isPlayingNow();
+            } else {
+                reproduciendo = !reproduciendo;
+            }
 
             if (reproduciendo) {
                 btnPlay.setImageResource(R.drawable.ic_pause);
