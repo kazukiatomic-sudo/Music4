@@ -95,6 +95,18 @@ public class MusicPlayerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && intent.getAction() != null) {
+            switch (intent.getAction()) {
+                case "ACTION_PLAY_PAUSE":
+                    playPause();
+                    mostrarNotificacion();
+                    return START_STICKY;
+                case "ACTION_NEXT":
+                    siguienteCancion();
+                    return START_STICKY;
+            }
+        }
+
         if (intent != null && intent.hasExtra("cancion_serializada")) {
             Serializable obj = intent.getSerializableExtra("cancion_serializada");
             if (obj instanceof Cancion) {
@@ -189,9 +201,19 @@ public class MusicPlayerService extends Service {
                 .setSmallIcon(R.drawable.ic_music_note)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .addAction(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play, isPlaying ? "Pausar" : "Reproducir", crearAccion("ACTION_PLAY_PAUSE"))
+                .addAction(R.drawable.ic_skip_next, "Siguiente", crearAccion("ACTION_NEXT"))
                 .setOngoing(true);
 
         startForeground(NOTIFICATION_ID, builder.build());
+    }
+
+
+    private PendingIntent crearAccion(String action) {
+        Intent intent = new Intent(this, MusicPlayerService.class);
+        intent.setAction(action);
+        return PendingIntent.getService(this, action.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
     private void crearCanalNotificacion() {

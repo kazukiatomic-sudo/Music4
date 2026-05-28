@@ -897,88 +897,10 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
     }
 
-    // ✅ CORREGIDO: onBackPressed con mejor manejo al salir
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(this)
-                .setTitle("Salir del reproductor")
-                .setMessage("¿Qué deseas hacer?")
-                .setPositiveButton("Solo salir (música sigue)", (d, w) -> {
-                    moveTaskToBack(true);
-                    Toast.makeText(this, "Música en segundo plano. Usa la notificación para volver.", Toast.LENGTH_LONG).show();
-                })
-                .setNegativeButton("Detener música y salir", (d, w) -> {
-                    if (mediaPlayer != null) {
-                        try {
-                            if (mediaPlayer.isPlaying()) {
-                                mediaPlayer.stop();
-                            }
-                            mediaPlayer.release();
-                        } catch (Exception e) {
-                            Log.e(TAG, "Error al detener MediaPlayer", e);
-                        }
-                        mediaPlayer = null;
-                    }
-                    stopService(new Intent(this, com.example.music1.utils.MusicPlayerService.class));
-                    isPlaying = false;
-                    finish();
-                })
-                .setNeutralButton("Cancelar", null)
-                .show();
-    }
-
-    // FIX Alto 2: Receptor para controlar el MediaPlayer desde la NowPlayingBar
-    // Esto evita que la barra mini inicie un segundo MediaPlayer en el servicio
-    private android.content.BroadcastReceiver controlReceiver;
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (isPlaying && mediaPlayer != null) handler.post(updateSeekBar);
-
-        // Registrar receptor de control desde la barra mini
-        controlReceiver = new android.content.BroadcastReceiver() {
-            @Override
-            public void onReceive(android.content.Context ctx, Intent intent) {
-                String action = intent.getStringExtra("action");
-                if ("PLAY_PAUSE".equals(action)) {
-                    if (isPlaying) pausarCancion(); else reproducirCancion();
-                } else if ("NEXT".equals(action)) {
-                    siguienteCancion();
-                } else if ("PREV".equals(action)) {
-                    cancionAnterior();
-                } else if ("SHUFFLE".equals(action)) {
-                    isShuffle = intent.getBooleanExtra("value", false);
-                    shuffleButton.setAlpha(isShuffle ? 1.0f : 0.5f);
-                } else if ("REPEAT".equals(action)) {
-                    isRepeat = intent.getBooleanExtra("value", false);
-                    repeatButton.setAlpha(isRepeat ? 1.0f : 0.5f);
-                } else if ("STOP".equals(action)) {
-                    pausarCancion();
-                }
-            }
-        };
-        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this)
-            .registerReceiver(controlReceiver, new android.content.IntentFilter("REPRODUCTOR_CONTROL"));
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (controlReceiver != null) {
-            androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this)
-                .unregisterReceiver(controlReceiver);
-            controlReceiver = null;
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (editTagsDialog != null && editTagsDialog.isShowing()
-                && requestCode == 1001 && resultCode == RESULT_OK && data != null) {
-            editTagsDialog.onImagePicked(data.getData());
-        }
+        moveTaskToBack(true);
+        Toast.makeText(this, "La música sigue reproduciéndose en segundo plano", Toast.LENGTH_SHORT).show();
     }
 
     @Override
