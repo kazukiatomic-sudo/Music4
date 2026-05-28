@@ -897,11 +897,10 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
     }
 
-    // ✅ Salir sin diálogos molestos
+    // ✅ CORREGIDO: onBackPressed con mejor manejo al salir
     @Override
     public void onBackPressed() {
-        moveTaskToBack(true);
-        Toast.makeText(this, "La música sigue en segundo plano", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     // FIX Alto 2: Receptor para controlar el MediaPlayer desde la NowPlayingBar

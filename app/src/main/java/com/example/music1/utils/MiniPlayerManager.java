@@ -41,7 +41,7 @@ public class MiniPlayerManager {
             reproduciendo = !reproduciendo;
 
             Intent intent = new Intent("ACTION_TOGGLE_PLAY");
-            activity.sendBroadcast(intent);
+            androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(activity).sendBroadcast(new Intent("REPRODUCTOR_CONTROL").putExtra("action", "PLAY_PAUSE"));
 
             if (reproduciendo) {
                 btnPlay.setImageResource(R.drawable.ic_pause);
@@ -54,6 +54,7 @@ public class MiniPlayerManager {
 
         btnAbrir.setOnClickListener(v -> {
             Intent intent = new Intent(activity, ReproductorLocalActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             activity.startActivity(intent);
         });
     }
