@@ -897,10 +897,55 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
     }
 
+    // ✅ Salir sin diálogos molestos
     @Override
     public void onBackPressed() {
         moveTaskToBack(true);
-        Toast.makeText(this, "La música sigue reproduciéndose en segundo plano", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "La música sigue en segundo plano", Toast.LENGTH_SHORT).show();
+    }
+
+    // FIX Alto 2: Receptor para controlar el MediaPlayer desde la NowPlayingBar
+    // Esto evita que la barra mini inicie un segundo MediaPlayer en el servicio
+    private android.content.BroadcastReceiver controlReceiver;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isPlaying && mediaPlayer != null) handler.post(updateSeekBar);
+
+        // Registrar receptor de control desde la barra mini
+        controlReceiver = new android.content.BroadcastReceiver() {
+            @Override
+            public void onReceive(android.content.Context ctx, Intent intent) {
+                String action = intent.getStringExtra("action");
+                if ("PLAY_PAUSE".equals(action)) {
+                    if (isPlaying) pausarCancion(); else reproducirCancion();
+                } else if ("NEXT".equals(action)) {
+                    siguienteCancion();
+                }
+            }
+        };
+        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this)
+            .registerReceiver(controlReceiver, new android.content.IntentFilter("REPRODUCTOR_CONTROL"));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (controlReceiver != null) {
+            androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(controlReceiver);
+            controlReceiver = null;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (editTagsDialog != null && editTagsDialog.isShowing()
+                && requestCode == 1001 && resultCode == RESULT_OK && data != null) {
+            editTagsDialog.onImagePicked(data.getData());
+        }
     }
 
     @Override

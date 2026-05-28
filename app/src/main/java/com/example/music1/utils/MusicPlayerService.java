@@ -29,6 +29,9 @@ public class MusicPlayerService extends Service {
     private static final String TAG = "MusicPlayerService";
     private static final String CHANNEL_ID = "MusicPlayerChannel";
     private static final int NOTIFICATION_ID = 1;
+    private static final String ACTION_PLAY_PAUSE = "ACTION_PLAY_PAUSE";
+    private static final String ACTION_NEXT = "ACTION_NEXT";
+    private static final String ACTION_PREV = "ACTION_PREV";
 
     // ✅ Singleton instance
     private static MusicPlayerService instance;
@@ -97,12 +100,15 @@ public class MusicPlayerService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null && intent.getAction() != null) {
             switch (intent.getAction()) {
-                case "ACTION_PLAY_PAUSE":
+                case ACTION_PLAY_PAUSE:
                     playPause();
                     mostrarNotificacion();
                     return START_STICKY;
-                case "ACTION_NEXT":
+                case ACTION_NEXT:
                     siguienteCancion();
+                    return START_STICKY;
+                case ACTION_PREV:
+                    cancionAnterior();
                     return START_STICKY;
             }
         }
@@ -128,6 +134,7 @@ public class MusicPlayerService extends Service {
                     isPlaying = true;
                     mostrarNotificacion();
                     actualizarNowPlayingBar();
+            mostrarNotificacion();
                     Log.d(TAG, "Metadatos actualizados sin iniciar MediaPlayer: " + cancionActual.getTitulo());
                 } else {
                     iniciarReproduccion();
@@ -201,10 +208,10 @@ public class MusicPlayerService extends Service {
                 .setSmallIcon(R.drawable.ic_music_note)
                 .setContentIntent(pendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .addAction(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play, isPlaying ? "Pausar" : "Reproducir", crearAccion("ACTION_PLAY_PAUSE"))
-                .addAction(R.drawable.ic_skip_next, "Siguiente", crearAccion("ACTION_NEXT"))
-                .setOngoing(true);
+                .setOngoing(true)
+                .addAction(R.drawable.ic_skip_previous, "Anterior", crearAccion(ACTION_PREV))
+                .addAction(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play, isPlaying ? "Pausar" : "Reproducir", crearAccion(ACTION_PLAY_PAUSE))
+                .addAction(R.drawable.ic_skip_next, "Siguiente", crearAccion(ACTION_NEXT));
 
         startForeground(NOTIFICATION_ID, builder.build());
     }
@@ -272,6 +279,7 @@ public class MusicPlayerService extends Service {
             isPlaying = false;
             mediaSession.setActive(false);
             actualizarNowPlayingBar();
+            mostrarNotificacion();
         }
     }
 
