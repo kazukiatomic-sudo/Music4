@@ -96,32 +96,46 @@ public class EditTagsDialog extends Dialog {
         }
     }
 
+    // ✅ CORREGIDO: Método cargarImagenDesdeUri con manejo robusto
     private void cargarImagenDesdeUri(Uri imageUri) {
         InputStream inputStream = null;
+        Bitmap bitmap = null;
         try {
             inputStream = getContext().getContentResolver().openInputStream(imageUri);
-            // FIX: decodificar el stream primero y cerrar en finally sin importar el resultado
-            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
-            if (bitmap != null) {
-                int maxSize = 512;
-                float ratio = Math.min((float) maxSize / bitmap.getWidth(), (float) maxSize / bitmap.getHeight());
-                int newWidth = Math.round(bitmap.getWidth() * ratio);
-                int newHeight = Math.round(bitmap.getHeight() * ratio);
-                Bitmap resized = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
-
-                portadaSeleccionada = resized;
-                ivPortada.setImageBitmap(resized);
-                portadaCambiada = true;
-                btnEliminarPortada.setVisibility(View.VISIBLE);
-            } else {
-                Toast.makeText(getContext(), "No se pudo cargar la imagen", Toast.LENGTH_SHORT).show();
+            if (inputStream == null) {
+                Toast.makeText(getContext(), "No se pudo abrir la imagen", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            bitmap = BitmapFactory.decodeStream(inputStream);
+
+            if (bitmap == null) {
+                Toast.makeText(getContext(), "Formato de imagen no soportado", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            int maxSize = 512;
+            float ratio = Math.min((float) maxSize / bitmap.getWidth(), (float) maxSize / bitmap.getHeight());
+            int newWidth = Math.round(bitmap.getWidth() * ratio);
+            int newHeight = Math.round(bitmap.getHeight() * ratio);
+            Bitmap resized = Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+
+            if (resized != bitmap) {
+                bitmap.recycle();
+            }
+
+            portadaSeleccionada = resized;
+            ivPortada.setImageBitmap(resized);
+            portadaCambiada = true;
+            btnEliminarPortada.setVisibility(View.VISIBLE);
+
         } catch (IOException e) {
             Log.e(TAG, "cargarImagenDesdeUri: Error", e);
-            Toast.makeText(getContext(), "Error al cargar imagen", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Error al cargar imagen: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        } catch (OutOfMemoryError e) {
+            Log.e(TAG, "cargarImagenDesdeUri: OutOfMemoryError", e);
+            Toast.makeText(getContext(), "La imagen es demasiado grande", Toast.LENGTH_SHORT).show();
         } finally {
-            // FIX: cerrar el InputStream siempre, incluso si bitmap fue null
             if (inputStream != null) {
                 try { inputStream.close(); } catch (IOException e) { /* ignorar */ }
             }

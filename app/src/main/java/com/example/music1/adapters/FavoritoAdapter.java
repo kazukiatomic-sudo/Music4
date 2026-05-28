@@ -101,10 +101,18 @@ public class FavoritoAdapter extends RecyclerView.Adapter<FavoritoAdapter.ViewHo
             btnEliminar.setOnClickListener(v -> {
                 int position = getAdapterPosition();
                 if (position != RecyclerView.NO_POSITION && position < favoritos.size()) {
-                    favoritosManager.quitarFavorito(favorito.getId(), favorito.getUri());
-                    favoritos.remove(position);
-                    notifyItemRemoved(position);
-                    listener.onEliminarClick(favorito);
+                    Favorito favAEliminar = favoritos.get(position);
+
+                    try {
+                        favoritosManager.quitarFavorito(favAEliminar.getId(), favAEliminar.getUri());
+                        favoritos.remove(position);
+                        notifyItemRemoved(position);
+                        listener.onEliminarClick(favAEliminar);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error al eliminar favorito", e);
+                        favoritos.remove(position);
+                        notifyItemRemoved(position);
+                    }
                 }
             });
         }

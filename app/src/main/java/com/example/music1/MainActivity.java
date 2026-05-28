@@ -1,6 +1,5 @@
 package com.example.music1;
 
-import com.example.music1.utils.MiniPlayerManager;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
@@ -25,8 +24,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        MiniPlayerManager.setupMiniPlayer(this);
         Log.i(TAG, "onCreate: Iniciando MainActivity");
 
         editNombre = findViewById(R.id.editNombre);

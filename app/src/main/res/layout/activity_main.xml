@@ -80,5 +80,4 @@
 
         android:textColor="@color/white"/>
 
-    <include layout="@layout/layout_miniplayer" />
 </LinearLayout>

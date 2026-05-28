@@ -1,6 +1,5 @@
 package com.example.music1;
 
-import com.example.music1.utils.MiniPlayerManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -31,71 +30,66 @@ public class FavoritoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favoritos);
-
-        MiniPlayerManager.setupMiniPlayer(this);
-
         initViews();
-        cargarFavoritos();
+        // FIX Medio 2: crear el adapter una sola vez en onCreate
+        configurarAdapter();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        cargarFavoritos();
+        // FIX Medio 2: en onResume solo actualizamos la lista, sin recrear el adapter
+        actualizarLista();
     }
 
     private void initViews() {
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());
-
         recyclerView = findViewById(R.id.recyclerView);
         tvEmpty = findViewById(R.id.tvEmpty);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         favoritosManager = FavoritosManager.getInstance(this);
     }
 
-    private void cargarFavoritos() {
+    private void configurarAdapter() {
         List<Favorito> favoritos = favoritosManager.getFavoritos();
+        adapter = new FavoritoAdapter(favoritos, new FavoritoAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Favorito favorito) {
+                android.net.Uri uri = null;
+                if (favorito.getUri() != null && !favorito.getUri().isEmpty()) {
+                    uri = android.net.Uri.parse(favorito.getUri());
+                }
+                Cancion cancion = new Cancion(
+                        favorito.getId(), favorito.getTitulo(), favorito.getArtista(),
+                        favorito.getAlbum(), favorito.getDuracion(), uri, favorito.getAlbumId());
+                ArrayList<Cancion> playlist = new ArrayList<>();
+                playlist.add(cancion);
+                Intent intent = new Intent(FavoritoActivity.this, ReproductorLocalActivity.class);
+                intent.putExtra("cancion_serializada", cancion);
+                intent.putExtra("lista_canciones", playlist);
+                intent.putExtra("lista_posicion", 0);
+                startActivity(intent);
+            }
 
+            @Override
+            public void onEliminarClick(Favorito favorito) {
+                actualizarLista();
+            }
+        });
+        recyclerView.setAdapter(adapter);
+        actualizarLista();
+    }
+
+    private void actualizarLista() {
+        List<Favorito> favoritos = favoritosManager.getFavoritos();
         if (favoritos.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             tvEmpty.setVisibility(View.VISIBLE);
         } else {
             tvEmpty.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
-
-            adapter = new FavoritoAdapter(favoritos, new FavoritoAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(Favorito favorito) {
-                    // ✅ CORREGIDO: Convertir Favorito a Cancion correctamente
-                    Cancion cancion = new Cancion(
-                            favorito.getId(),
-                            favorito.getTitulo(),
-                            favorito.getArtista(),
-                            favorito.getAlbum(),
-                            favorito.getDuracion(),
-                            favorito.getUri() != null ? android.net.Uri.parse(favorito.getUri()) : null,
-                            favorito.getAlbumId()
-                    );
-
-                    // Crear playlist con esta sola canción
-                    ArrayList<Cancion> playlist = new ArrayList<>();
-                    playlist.add(cancion);
-
-                    Intent intent = new Intent(FavoritoActivity.this, ReproductorLocalActivity.class);
-                    intent.putExtra("cancion_serializada", cancion);
-                    intent.putExtra("lista_canciones", playlist);
-                    intent.putExtra("lista_posicion", 0);
-                    startActivity(intent);
-                }
-
-                @Override
-                public void onEliminarClick(Favorito favorito) {
-                    cargarFavoritos(); // Refrescar después de eliminar
-                }
-            });
-            recyclerView.setAdapter(adapter);
+            adapter.updateList(favoritos);
         }
     }
 }

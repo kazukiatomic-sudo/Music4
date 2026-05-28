@@ -63,8 +63,7 @@
                         android:text="Usuario"
                         style="@style/Text.H3"
                         android:textColor="@color/texto_primario" />
-                    <include layout="@layout/layout_miniplayer" />
-</LinearLayout>
+                </LinearLayout>
 
                 <!-- Icono de bienvenida -->
                 <ImageView

@@ -60,8 +60,7 @@
                 android:tint="@color/texto_secundario"
                 android:visibility="gone"
                 android:padding="4dp" />
-            <include layout="@layout/layout_miniplayer" />
-</LinearLayout>
+        </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Resultados -->

@@ -1,6 +1,5 @@
 package com.example.music1;
 
-import com.example.music1.utils.MiniPlayerManager;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,8 +33,6 @@ public class TipoMusicaActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tipo_musica);
-
-        MiniPlayerManager.setupMiniPlayer(this);
         Log.i(TAG, "onCreate: Iniciando TipoMusicaActivity");
 
         initViews();
@@ -60,16 +57,37 @@ public class TipoMusicaActivity extends AppCompatActivity {
         sessionManager = new SessionManager(this);
     }
 
+    // Solo reemplaza el método cargarDatosUsuario() en TipoMusicaActivity
+
     private void cargarDatosUsuario() {
         String nombre = prefs.getString("nombre", "Usuario");
         int avatar = prefs.getInt("avatar", 1);
 
         tvNombreUsuario.setText(nombre);
 
-        if (avatar == 1) {
-            ivAvatarPerfil.setImageResource(R.drawable.avatar1);
-        } else {
-            ivAvatarPerfil.setImageResource(R.drawable.avatar2);
+        // ✅ FIX #17: Soporte para los 6 avatares
+        switch (avatar) {
+            case 1:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar1);
+                break;
+            case 2:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar2);
+                break;
+            case 3:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar3);
+                break;
+            case 4:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar4);
+                break;
+            case 5:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar5);
+                break;
+            case 6:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar6);
+                break;
+            default:
+                ivAvatarPerfil.setImageResource(R.drawable.avatar1);
+                break;
         }
     }
 
@@ -88,7 +106,7 @@ public class TipoMusicaActivity extends AppCompatActivity {
                     })
                     .start();
 
-            new Handler().postDelayed(() -> {
+            new Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                 if (v == cardLocal || v == btnLocal) {
                     irALocal();
                 } else if (v == cardOnline || v == btnOnline) {
@@ -185,5 +203,19 @@ public class TipoMusicaActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         cargarDatosUsuario();
+        // FIX Bajo 2: reanudar animación del avatar al volver a la pantalla
+        if (ivAvatarPerfil != null) {
+            android.view.animation.Animation rot = android.view.animation.AnimationUtils
+                .loadAnimation(this, R.anim.rotate_infinite);
+            rot.setDuration(3000);
+            ivAvatarPerfil.startAnimation(rot);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // FIX Bajo 2: detener animación cuando la pantalla no es visible para ahorrar CPU
+        if (ivAvatarPerfil != null) ivAvatarPerfil.clearAnimation();
     }
 }

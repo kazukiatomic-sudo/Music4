@@ -42,15 +42,6 @@
             android:clickable="true"
             android:focusable="true"/>
 
-        <ImageView
-            android:id="@+id/avatar3"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_margin="12dp"
-            android:src="@drawable/avatar3"
-            android:clickable="true"
-            android:focusable="true"/>
-
     </LinearLayout>
 
     <!-- Fila 2: avatares 4, 5 y 6 -->
@@ -77,15 +68,24 @@
             android:clickable="true"
             android:focusable="true"/>
 
-        <ImageView
-            android:id="@+id/avatar6"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_margin="12dp"
-            android:src="@drawable/avatar6"
-            android:clickable="true"
-            android:focusable="true"/>
-
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/avatar3"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_margin="12dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/avatar3" />
+
+    <ImageView
+        android:id="@+id/avatar6"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_margin="12dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/avatar6" />
 
 </LinearLayout>

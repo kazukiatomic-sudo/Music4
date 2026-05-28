@@ -1,6 +1,5 @@
 package com.example.music1;
 
-import com.example.music1.utils.MiniPlayerManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -31,8 +30,6 @@ public class SugerirActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sugerir);
-
-        MiniPlayerManager.setupMiniPlayer(this);
 
         MaterialToolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setNavigationOnClickListener(v -> finish());

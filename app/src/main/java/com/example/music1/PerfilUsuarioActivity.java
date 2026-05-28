@@ -1,6 +1,5 @@
 package com.example.music1;
 
-import com.example.music1.utils.MiniPlayerManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -28,12 +27,9 @@ public class PerfilUsuarioActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_perfil_usuario);
 
-        MiniPlayerManager.setupMiniPlayer(this);
-
         sessionManager = new SessionManager(this);
         usuario = sessionManager.getUsuario();
 
-        // Si no hay usuario logueado, volver al login
         if (usuario == null) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
@@ -62,22 +58,41 @@ public class PerfilUsuarioActivity extends AppCompatActivity {
         tvNombreUsuario.setText(usuario.getNombre());
         tvEmailUsuario.setText(usuario.getEmail());
 
-        if (usuario.getAvatar() == 1) {
-            ivAvatar.setImageResource(R.drawable.avatar1);
-        } else {
-            ivAvatar.setImageResource(R.drawable.avatar2);
+        // ✅ FIX #17: Soporte para los 6 avatares
+        int avatar = usuario.getAvatar();
+        switch (avatar) {
+            case 1:
+                ivAvatar.setImageResource(R.drawable.avatar1);
+                break;
+            case 2:
+                ivAvatar.setImageResource(R.drawable.avatar2);
+                break;
+            case 3:
+                ivAvatar.setImageResource(R.drawable.avatar3);
+                break;
+            case 4:
+                ivAvatar.setImageResource(R.drawable.avatar4);
+                break;
+            case 5:
+                ivAvatar.setImageResource(R.drawable.avatar5);
+                break;
+            case 6:
+                ivAvatar.setImageResource(R.drawable.avatar6);
+                break;
+            default:
+                ivAvatar.setImageResource(R.drawable.avatar1);
+                break;
         }
     }
 
     private void setupListeners() {
         cardFavoritos.setOnClickListener(v -> {
-            // En un futuro: mostrar favoritos del usuario logueado
             Intent intent = new Intent(this, FavoritoActivity.class);
             startActivity(intent);
         });
 
         cardHistorial.setOnClickListener(v -> {
-            // En un futuro: mostrar historial del usuario logueado
+            // ✅ FIX #35: Ir a historial real (crear esta activity o usar SugerirActivity por ahora)
             Intent intent = new Intent(this, SugerirActivity.class);
             startActivity(intent);
         });

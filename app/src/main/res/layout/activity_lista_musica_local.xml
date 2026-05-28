@@ -19,7 +19,8 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <!-- ProgressBar de carga -->
         <ProgressBar
@@ -59,8 +60,7 @@
                 android:layout_height="wrap_content"
                 android:text="Las canciones aparecerán aquí"
                 style="@style/Text.Body" />
-            <include layout="@layout/layout_miniplayer" />
-</LinearLayout>
+        </LinearLayout>
 
         <!-- RecyclerView con la lista de canciones -->
         <androidx.recyclerview.widget.RecyclerView
@@ -70,4 +70,8 @@
             android:visibility="visible" />
 
     </FrameLayout>
+
+    <!-- ✅ MINI REPRODUCTOR (NOW PLAYING BAR) - AGREGADO AQUÍ -->
+    <include layout="@layout/now_playing_bar" />
+
 </LinearLayout>

@@ -1,5 +1,6 @@
 package com.example.music1;
 
+import android.util.Log;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -99,6 +100,8 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    // Reemplaza el método sincronizarFavoritosDesdeServidor() en LoginActivity
+
     private void sincronizarFavoritosDesdeServidor(int usuarioId) {
         MusicApi api = ApiClient.getApi();
         Call<List<FavoritoRemoto>> call = api.getFavoritos(usuarioId);
@@ -107,34 +110,52 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<List<FavoritoRemoto>> call, Response<List<FavoritoRemoto>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     FavoritosManager manager = FavoritosManager.getInstance(LoginActivity.this);
-                    manager.limpiarFavoritos();
+
+                    // ✅ FIX #32: Limpiar SOLO favoritos locales que están en servidor?
+                    // Mejor: No limpiar todo, sino hacer merge sin duplicados
+                    List<Favorito> favoritosExistentes = manager.getFavoritos();
+
                     for (FavoritoRemoto fr : response.body()) {
-                        // FIX: validar cancion_id antes de parsear para evitar NumberFormatException
                         if (fr.cancion_id == null || fr.cancion_id.isEmpty()) continue;
                         try {
                             long id = Long.parseLong(fr.cancion_id);
-                            Favorito fav = new Favorito(
-                                    id,
-                                    fr.titulo,
-                                    fr.artista,
-                                    fr.album,
-                                    fr.duracion,
-                                    fr.uri,
-                                    fr.album_id
-                            );
-                            manager.agregarFavorito(fav);
+
+                            // ✅ Verificar si ya existe localmente
+                            boolean yaExiste = false;
+                            for (Favorito existente : favoritosExistentes) {
+                                if (existente.getId() == id &&
+                                        (existente.getUri() != null && existente.getUri().equals(fr.uri))) {
+                                    yaExiste = true;
+                                    break;
+                                }
+                            }
+
+                            if (!yaExiste) {
+                                Favorito fav = new Favorito(
+                                        id,
+                                        fr.titulo,
+                                        fr.artista,
+                                        fr.album,
+                                        fr.duracion,
+                                        fr.uri,
+                                        fr.album_id
+                                );
+                                manager.agregarFavorito(fav);
+                            }
                         } catch (NumberFormatException e) {
-                            android.util.Log.e("LoginActivity", "cancion_id no válido: " + fr.cancion_id, e);
+                            Log.e("LoginActivity", "cancion_id no válido: " + fr.cancion_id, e);
                         }
                     }
+                    Log.d("LoginActivity", "Sincronización completada. Total favoritos: " + manager.getFavoritos().size());
                 }
             }
 
             @Override
-            public void onFailure(Call<List<FavoritoRemoto>> call, Throwable t) {}
+            public void onFailure(Call<List<FavoritoRemoto>> call, Throwable t) {
+                Log.e("LoginActivity", "Error al sincronizar favoritos", t);
+            }
         });
     }
-
     private void irActividadPrincipal() {
         Intent intent = new Intent(LoginActivity.this, PerfilUsuarioActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

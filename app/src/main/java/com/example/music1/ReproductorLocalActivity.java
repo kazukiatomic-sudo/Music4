@@ -1,6 +1,5 @@
 package com.example.music1;
 
-import com.example.music1.utils.MiniPlayerManager;
 import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.Intent;
@@ -31,6 +30,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.example.music1.models.Cancion;
 import com.example.music1.models.Favorito;
@@ -77,12 +77,11 @@ public class ReproductorLocalActivity extends AppCompatActivity {
     private SessionManager sessionManager;
     private EditTagsDialog editTagsDialog;
 
-    // ── Tema ─────────────────────────────────────────────────────────────
     private static final int[] THEMES = {
-        android.R.color.black,          // 0 Oscuro
-        android.R.color.holo_blue_dark, // 1 Azul
-        android.R.color.holo_purple,    // 2 Morado
-        android.R.color.holo_green_dark // 3 Verde
+            android.R.color.black,
+            android.R.color.holo_blue_dark,
+            android.R.color.holo_purple,
+            android.R.color.holo_green_dark
     };
     private static final String[] THEME_NAMES = {"Oscuro", "Azul", "Morado", "Verde"};
     private int currentTheme = 0;
@@ -91,6 +90,7 @@ public class ReproductorLocalActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reproductor_local);
+        Log.d(TAG, "onCreate: Iniciando ReproductorLocalActivity");
 
         favoritosManager = FavoritosManager.getInstance(this);
         tagEditorManager = TagEditorManager.getInstance(this);
@@ -101,11 +101,21 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(v -> finish());
 
         initViews();
-        cargarPlaylist();
+
+        // ✅ Verificar si hay datos antes de continuar
+        boolean tieneDatos = cargarPlaylist();
+        Log.d(TAG, "onCreate: tieneDatos=" + tieneDatos);
+
+        if (!tieneDatos || cancionActual == null) {
+            Log.e(TAG, "onCreate: No se pudo cargar la canción");
+            Toast.makeText(this, "Error: No se pudo cargar la canción", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+
         setupListeners();
         setupRotateAnimation();
-
-        if (cancionActual != null) inicializarMediaPlayer();
+        inicializarMediaPlayer();
     }
 
     private void initViews() {
@@ -130,9 +140,6 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         shuffleButton.setAlpha(0.5f);
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  MENÚ
-    // ══════════════════════════════════════════════════════════════════════
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_reproductor, menu);
@@ -165,7 +172,6 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    // ── 1. Letra ──────────────────────────────────────────────────────────
     private void buscarLetra() {
         if (cancionActual == null) return;
         String query = cancionActual.getTitulo() + " " + cancionActual.getArtista() + " letra";
@@ -173,23 +179,21 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
     }
 
-    // ── 2. Agregar a playlist ─────────────────────────────────────────────
     private void agregarAPlaylist() {
         if (cancionActual == null) return;
         new AlertDialog.Builder(this)
-            .setTitle("Agregar a lista de reproducción")
-            .setMessage("\"" + cancionActual.getTitulo() + "\" se agregará a tu lista de reproducción actual.")
-            .setPositiveButton("Agregar", (d, w) -> {
-                if (!playlistActual.contains(cancionActual)) {
-                    playlistActual.add(cancionActual);
-                }
-                Toast.makeText(this, "✓ Agregado a la lista", Toast.LENGTH_SHORT).show();
-            })
-            .setNegativeButton("Cancelar", null)
-            .show();
+                .setTitle("Agregar a lista de reproducción")
+                .setMessage("\"" + cancionActual.getTitulo() + "\" se agregará a tu lista de reproducción actual.")
+                .setPositiveButton("Agregar", (d, w) -> {
+                    if (!playlistActual.contains(cancionActual)) {
+                        playlistActual.add(cancionActual);
+                    }
+                    Toast.makeText(this, "✓ Agregado a la lista", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
-    // ── 3. Editor de etiquetas ────────────────────────────────────────────
     private void abrirEditorEtiquetas() {
         if (cancionActual == null) return;
         editTagsDialog = new EditTagsDialog(this, cancionActual, () -> {
@@ -199,24 +203,22 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         editTagsDialog.show();
     }
 
-    // ── 4. Detalles ───────────────────────────────────────────────────────
     private void mostrarDetalles() {
         if (cancionActual == null) return;
         String info =
-            "Título:    " + cancionActual.getTitulo() + "\n" +
-            "Artista:   " + cancionActual.getArtista() + "\n" +
-            "Álbum:     " + cancionActual.getAlbum() + "\n" +
-            "Duración:  " + cancionActual.getDuracionFormateada() + "\n" +
-            "ID:        " + cancionActual.getId() + "\n" +
-            "URI:       " + cancionActual.getUriString();
+                "Título:    " + cancionActual.getTitulo() + "\n" +
+                        "Artista:   " + cancionActual.getArtista() + "\n" +
+                        "Álbum:     " + cancionActual.getAlbum() + "\n" +
+                        "Duración:  " + cancionActual.getDuracionFormateada() + "\n" +
+                        "ID:        " + cancionActual.getId() + "\n" +
+                        "URI:       " + cancionActual.getUriString();
         new AlertDialog.Builder(this)
-            .setTitle("Detalles de la canción")
-            .setMessage(info)
-            .setPositiveButton("Cerrar", null)
-            .show();
+                .setTitle("Detalles de la canción")
+                .setMessage(info)
+                .setPositiveButton("Cerrar", null)
+                .show();
     }
 
-    // ── 5. Velocidad de reproducción ──────────────────────────────────────
     private void mostrarVelocidad() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             Toast.makeText(this, "Requiere Android 6.0 o superior", Toast.LENGTH_SHORT).show();
@@ -232,22 +234,17 @@ public class ReproductorLocalActivity extends AppCompatActivity {
 
         final int[] sel = {seleccionado};
         new AlertDialog.Builder(this)
-            .setTitle("Velocidad de reproducción")
-            .setSingleChoiceItems(opciones, seleccionado, (d, which) -> sel[0] = which)
-            .setPositiveButton("Aplicar", (d, w) -> {
-                playbackSpeed = valores[sel[0]];
-                if (mediaPlayer != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    PlaybackParams params = mediaPlayer.getPlaybackParams();
-                    params.setSpeed(playbackSpeed);
-                    mediaPlayer.setPlaybackParams(params);
-                }
-                Toast.makeText(this, "Velocidad: " + opciones[sel[0]], Toast.LENGTH_SHORT).show();
-            })
-            .setNegativeButton("Cancelar", null)
-            .show();
+                .setTitle("Velocidad de reproducción")
+                .setSingleChoiceItems(opciones, seleccionado, (d, which) -> sel[0] = which)
+                .setPositiveButton("Aplicar", (d, w) -> {
+                    playbackSpeed = valores[sel[0]];
+                    aplicarVelocidad();
+                    Toast.makeText(this, "Velocidad: " + opciones[sel[0]], Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
-    // ── 6. Ecualizador ────────────────────────────────────────────────────
     private void abrirEcualizador() {
         if (equalizer != null) {
             new EqualizerDialog(this, equalizer).show();
@@ -256,23 +253,21 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
     }
 
-    // ── 7. Cortador MP3 ───────────────────────────────────────────────────
     private void abrirCortador() {
-        if (cancionActual == null) return;
-        // Intentar abrir app externa de corte de audio; si no existe, ir a la Play Store
-        Intent intent = new Intent(Intent.ACTION_EDIT);
-        intent.setDataAndType(cancionActual.getUri(), "audio/*");
-        if (intent.resolveActivity(getPackageManager()) != null) {
-            startActivity(intent);
-        } else {
-            // Redirigir a búsqueda en Play Store
-            String url = "https://play.google.com/store/search?q=mp3+cutter&c=apps";
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-            Toast.makeText(this, "Instala un cortador de MP3 desde la Play Store", Toast.LENGTH_LONG).show();
+        if (cancionActual == null) {
+            Toast.makeText(this, "No hay canción seleccionada", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        if (cancionActual.esCancionDePrueba()) {
+            Toast.makeText(this, "No se pueden cortar canciones de prueba", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Mp3CutterDialog dialog = new Mp3CutterDialog(this, cancionActual);
+        dialog.show();
     }
 
-    // ── 8. Buscar en YouTube ──────────────────────────────────────────────
     private void buscarEnYouTube() {
         if (cancionActual == null) return;
         String query = cancionActual.getTitulo() + " " + cancionActual.getArtista();
@@ -280,28 +275,25 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
     }
 
-    // ── 9. Tema del reproductor ───────────────────────────────────────────
     private void elegirTema() {
         final int[] sel = {currentTheme};
         new AlertDialog.Builder(this)
-            .setTitle("Tema del reproductor")
-            .setSingleChoiceItems(THEME_NAMES, currentTheme, (d, which) -> sel[0] = which)
-            .setPositiveButton("Aplicar", (d, w) -> {
-                currentTheme = sel[0];
-                View root = findViewById(android.R.id.content);
-                root.setBackgroundResource(THEMES[currentTheme]);
-                Toast.makeText(this, "Tema: " + THEME_NAMES[currentTheme], Toast.LENGTH_SHORT).show();
-            })
-            .setNegativeButton("Cancelar", null)
-            .show();
+                .setTitle("Tema del reproductor")
+                .setSingleChoiceItems(THEME_NAMES, currentTheme, (d, which) -> sel[0] = which)
+                .setPositiveButton("Aplicar", (d, w) -> {
+                    currentTheme = sel[0];
+                    View root = findViewById(android.R.id.content);
+                    root.setBackgroundResource(THEMES[currentTheme]);
+                    Toast.makeText(this, "Tema: " + THEME_NAMES[currentTheme], Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
-    // ── 10. Modo de conducir ──────────────────────────────────────────────
     private void toggleDriveMode(MenuItem item) {
         isDriveMode = !isDriveMode;
         item.setTitle(isDriveMode ? "✓ Modo conducir" : "Modo de conducir");
         if (isDriveMode) {
-            // Botones grandes, pantalla encendida
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
             prevButton.setScaleX(1.4f); prevButton.setScaleY(1.4f);
             nextButton.setScaleX(1.4f); nextButton.setScaleY(1.4f);
@@ -316,7 +308,6 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
     }
 
-    // ── 11. Pantalla de bloqueo ───────────────────────────────────────────
     private void toggleLockScreen() {
         boolean keep = (getWindow().getAttributes().flags &
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) != 0;
@@ -329,83 +320,76 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
     }
 
-    // ── 12. Ajustes ───────────────────────────────────────────────────────
     private void abrirAjustes() {
         String[] opciones = {
-            "Velocidad de reproducción",
-            "Tema del reproductor",
-            "Temporizador de apagado",
-            "Desvanecer entre canciones",
-            "Reproducción sin pausas"
+                "Velocidad de reproducción",
+                "Tema del reproductor",
+                "Temporizador de apagado",
+                "Desvanecer entre canciones",
+                "Reproducción sin pausas"
         };
         new AlertDialog.Builder(this)
-            .setTitle("⚙ Ajustes")
-            .setItems(opciones, (d, which) -> {
-                switch (which) {
-                    case 0: mostrarVelocidad(); break;
-                    case 1: elegirTema(); break;
-                    case 2: mostrarSleepTimer(); break;
-                    case 3: toggleFadeDesdeAjustes(); break;
-                    case 4: toggleGaplessDesdeAjustes(); break;
-                }
-            })
-            .show();
+                .setTitle("⚙ Ajustes")
+                .setItems(opciones, (d, which) -> {
+                    switch (which) {
+                        case 0: mostrarVelocidad(); break;
+                        case 1: elegirTema(); break;
+                        case 2: mostrarSleepTimer(); break;
+                        case 3: toggleFadeDesdeAjustes(); break;
+                        case 4: toggleGaplessDesdeAjustes(); break;
+                    }
+                })
+                .show();
     }
 
-    // ── 13. Ocultar ───────────────────────────────────────────────────────
     private void ocultarReproductor() {
-        // Mueve la app al fondo manteniendo la música sonando
         moveTaskToBack(true);
     }
 
-    // ── 14. Eliminar ──────────────────────────────────────────────────────
     private void eliminarCancion() {
         if (cancionActual == null) return;
         new AlertDialog.Builder(this)
-            .setTitle("Eliminar canción")
-            .setMessage("¿Eliminar \"" + cancionActual.getTitulo() + "\" del dispositivo?")
-            .setPositiveButton("Eliminar", (d, w) -> {
-                try {
-                    if (mediaPlayer != null && mediaPlayer.isPlaying()) mediaPlayer.stop();
-                    getContentResolver().delete(cancionActual.getUri(), null, null);
-                    favoritosManager.quitarFavorito(cancionActual.getId(), cancionActual.getUriString());
-                    Toast.makeText(this, "Canción eliminada", Toast.LENGTH_SHORT).show();
-                    finish();
-                } catch (Exception e) {
-                    Toast.makeText(this, "Error al eliminar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            })
-            .setNegativeButton("Cancelar", null)
-            .show();
+                .setTitle("Eliminar canción")
+                .setMessage("¿Eliminar \"" + cancionActual.getTitulo() + "\" del dispositivo?")
+                .setPositiveButton("Eliminar", (d, w) -> {
+                    try {
+                        if (mediaPlayer != null && mediaPlayer.isPlaying()) mediaPlayer.stop();
+                        getContentResolver().delete(cancionActual.getUri(), null, null);
+                        favoritosManager.quitarFavorito(cancionActual.getId(), cancionActual.getUriString());
+                        Toast.makeText(this, "Canción eliminada", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } catch (Exception e) {
+                        Toast.makeText(this, "Error al eliminar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
-    // ── 15. Compartir ─────────────────────────────────────────────────────
     private void compartirCancion() {
         if (cancionActual == null) return;
         Intent share = new Intent(Intent.ACTION_SEND);
         share.setType("text/plain");
         share.putExtra(Intent.EXTRA_TEXT,
-            "🎵 " + cancionActual.getTitulo() + " - " + cancionActual.getArtista());
+                "🎵 " + cancionActual.getTitulo() + " - " + cancionActual.getArtista());
         startActivity(Intent.createChooser(share, "Compartir canción"));
     }
 
-    // ── 16. Temporizador de apagado ───────────────────────────────────────
     private void mostrarSleepTimer() {
-        // Opciones predefinidas + picker personalizado
         String[] opciones = {"5 minutos", "10 minutos", "15 minutos", "30 minutos",
-                             "45 minutos", "1 hora", "Personalizado",
-                             sleepTimer != null ? "❌ Cancelar temporizador" : "Sin temporizador activo"};
+                "45 minutos", "1 hora", "Personalizado",
+                sleepTimer != null ? "❌ Cancelar temporizador" : "Sin temporizador activo"};
 
         new AlertDialog.Builder(this)
-            .setTitle("⏱ Temporizador de apagado")
-            .setItems(opciones, (d, which) -> {
-                int[] minutos = {5, 10, 15, 30, 45, 60, -1, 0};
-                if (which == 7 && sleepTimer == null) return;
-                if (which == 7) { cancelarSleepTimer(); return; }
-                if (which == 6) { mostrarPickerMinutos(); return; }
-                iniciarSleepTimer(minutos[which]);
-            })
-            .show();
+                .setTitle("⏱ Temporizador de apagado")
+                .setItems(opciones, (d, which) -> {
+                    int[] minutos = {5, 10, 15, 30, 45, 60, -1, 0};
+                    if (which == 7 && sleepTimer == null) return;
+                    if (which == 7) { cancelarSleepTimer(); return; }
+                    if (which == 6) { mostrarPickerMinutos(); return; }
+                    iniciarSleepTimer(minutos[which]);
+                })
+                .show();
     }
 
     private void mostrarPickerMinutos() {
@@ -415,11 +399,11 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         picker.setValue(30);
 
         new AlertDialog.Builder(this)
-            .setTitle("Minutos")
-            .setView(picker)
-            .setPositiveButton("Iniciar", (d, w) -> iniciarSleepTimer(picker.getValue()))
-            .setNegativeButton("Cancelar", null)
-            .show();
+                .setTitle("Minutos")
+                .setView(picker)
+                .setPositiveButton("Iniciar", (d, w) -> iniciarSleepTimer(picker.getValue()))
+                .setNegativeButton("Cancelar", null)
+                .show();
     }
 
     private void iniciarSleepTimer(int minutos) {
@@ -429,12 +413,12 @@ public class ReproductorLocalActivity extends AppCompatActivity {
             @Override public void onTick(long millisLeft) {
                 long minLeft = millisLeft / 60000;
                 Toast.makeText(ReproductorLocalActivity.this,
-                    "⏱ " + minLeft + " min para apagar", Toast.LENGTH_SHORT).show();
+                        "⏱ " + minLeft + " min para apagar", Toast.LENGTH_SHORT).show();
             }
             @Override public void onFinish() {
                 pausarCancion();
                 Toast.makeText(ReproductorLocalActivity.this,
-                    "⏱ Temporizador: reproducción detenida", Toast.LENGTH_LONG).show();
+                        "⏱ Temporizador: reproducción detenida", Toast.LENGTH_LONG).show();
                 sleepTimer = null;
             }
         }.start();
@@ -449,135 +433,48 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         }
     }
 
-    // ── 17. Desvanecer ────────────────────────────────────────────────────
     private void toggleFade(MenuItem item) {
         isFadeEnabled = !isFadeEnabled;
         item.setTitle(isFadeEnabled ? "✓ Desvanecer" : "Desvanecer");
         Toast.makeText(this, isFadeEnabled
-            ? "🎚 Fade entre canciones activado"
-            : "Fade desactivado", Toast.LENGTH_SHORT).show();
+                ? "🎚 Fade entre canciones activado"
+                : "Fade desactivado", Toast.LENGTH_SHORT).show();
     }
 
     private void toggleFadeDesdeAjustes() {
         isFadeEnabled = !isFadeEnabled;
         Toast.makeText(this, isFadeEnabled
-            ? "🎚 Fade activado"
-            : "Fade desactivado", Toast.LENGTH_SHORT).show();
+                ? "🎚 Fade activado"
+                : "Fade desactivado", Toast.LENGTH_SHORT).show();
     }
 
-    // ── 18. Reproducción sin pausas ───────────────────────────────────────
     private void toggleGapless(MenuItem item) {
         isGapless = !isGapless;
         item.setTitle(isGapless ? "✓ Sin pausas" : "Reproducción sin pausas");
         Toast.makeText(this, isGapless
-            ? "▶ Reproducción sin pausas activada"
-            : "Reproducción sin pausas desactivada", Toast.LENGTH_SHORT).show();
+                ? "▶ Reproducción sin pausas activada"
+                : "Reproducción sin pausas desactivada", Toast.LENGTH_SHORT).show();
     }
 
     private void toggleGaplessDesdeAjustes() {
         isGapless = !isGapless;
         Toast.makeText(this, isGapless
-            ? "▶ Sin pausas activado"
-            : "Sin pausas desactivado", Toast.LENGTH_SHORT).show();
+                ? "▶ Sin pausas activado"
+                : "Sin pausas desactivado", Toast.LENGTH_SHORT).show();
     }
 
-    // ══════════════════════════════════════════════════════════════════════
-    //  REPRODUCTOR
-    // ══════════════════════════════════════════════════════════════════════
-    private void cargarPlaylist() {
-        Intent intent = getIntent();
-        try {
-            if (intent.hasExtra("cancion_serializada")) {
-                Serializable obj = intent.getSerializableExtra("cancion_serializada");
-                if (obj instanceof Cancion) {
-                    cancionActual = (Cancion) obj;
-                    cancionActual.restaurarUri();
-                }
+    // ==================== MÉTODOS DEL REPRODUCTOR ====================
+
+    private void aplicarVelocidad() {
+        if (mediaPlayer != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                PlaybackParams params = mediaPlayer.getPlaybackParams();
+                params.setSpeed(playbackSpeed);
+                mediaPlayer.setPlaybackParams(params);
+                Log.d(TAG, "Velocidad aplicada: " + playbackSpeed + "x");
+            } catch (Exception e) {
+                Log.e(TAG, "Error aplicando velocidad", e);
             }
-            if (intent.hasExtra("lista_canciones")) {
-                Serializable listObj = intent.getSerializableExtra("lista_canciones");
-                if (listObj instanceof List<?>) {
-                    List<?> temp = (List<?>) listObj;
-                    if (!temp.isEmpty() && temp.get(0) instanceof Cancion) {
-                        playlistActual = (List<Cancion>) listObj;
-                        for (Cancion c : playlistActual) if (c != null) c.restaurarUri();
-                    }
-                }
-            }
-            posicionActual = intent.getIntExtra("lista_posicion", 0);
-            if (playlistActual == null || playlistActual.isEmpty()) {
-                playlistActual = new ArrayList<>();
-                if (cancionActual != null) playlistActual.add(cancionActual);
-            }
-            if (cancionActual != null) return;
-        } catch (Exception e) {
-            Log.e(TAG, "Error deserializando playlist", e);
-        }
-
-        // Método legacy por extras individuales
-        long cancionId  = intent.getLongExtra("cancion_id", -1);
-        String titulo   = intent.getStringExtra("cancion_titulo");
-        String artista  = intent.getStringExtra("cancion_artista");
-        String album    = intent.getStringExtra("cancion_album");
-        long duracion   = intent.getLongExtra("cancion_duracion", 0);
-        long albumId    = intent.getLongExtra("cancion_album_id", 0);
-        String uriStr   = intent.getStringExtra("cancion_uri");
-
-        if (cancionId != -1 && titulo != null) {
-            Uri uri = uriStr != null && !uriStr.isEmpty()
-                ? Uri.parse(uriStr)
-                : ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, cancionId);
-            cancionActual = new Cancion(cancionId, titulo, artista, album, duracion, uri, albumId);
-            playlistActual = new ArrayList<>();
-            playlistActual.add(cancionActual);
-            posicionActual = 0;
-        }
-
-        if (cancionActual == null) {
-            Toast.makeText(this, "Error: datos de canción inválidos", Toast.LENGTH_SHORT).show();
-            finish();
-        }
-    }
-
-    private void inicializarMediaPlayer() {
-        try {
-            if (equalizer != null) { equalizer.release(); equalizer = null; }
-            if (mediaPlayer != null) { mediaPlayer.release(); mediaPlayer = null; }
-
-            if (cancionActual == null) { finish(); return; }
-            cancionActual.restaurarUri();
-            Uri uri = cancionActual.getUri();
-            if (uri == null) {
-                Toast.makeText(this, "No se pudo acceder al archivo", Toast.LENGTH_SHORT).show();
-                finish(); return;
-            }
-
-            mediaPlayer = new MediaPlayer();
-            mediaPlayer.setDataSource(this, uri);
-            mediaPlayer.prepareAsync();
-
-            mediaPlayer.setOnPreparedListener(mp -> {
-                configurarMediaPlayer();
-                // Aplicar velocidad si fue cambiada previamente
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && playbackSpeed != 1.0f) {
-                    PlaybackParams params = mp.getPlaybackParams();
-                    params.setSpeed(playbackSpeed);
-                    mp.setPlaybackParams(params);
-                }
-                reproducirCancion();
-                actualizarUI();
-            });
-
-            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
-                Log.e(TAG, "MediaPlayer error: " + what + "/" + extra);
-                Toast.makeText(this, "Error al reproducir", Toast.LENGTH_SHORT).show();
-                return true;
-            });
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error inicializando MediaPlayer", e);
-            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            finish();
         }
     }
 
@@ -591,10 +488,18 @@ public class ReproductorLocalActivity extends AppCompatActivity {
             if (sid != -1) { equalizer = new Equalizer(0, sid); equalizer.setEnabled(true); }
         } catch (Exception e) { Log.e(TAG, "Error ecualizador", e); }
 
+        aplicarVelocidad();
+
         mediaPlayer.setOnCompletionListener(mp -> {
             if (isFadeEnabled) fadeOutAndNext();
-            else if (isRepeat)  { mediaPlayer.start(); actualizarSeekBar(); }
-            else                siguienteCancion();
+            else if (isRepeat) {
+                mediaPlayer.seekTo(0);
+                aplicarVelocidad();
+                mediaPlayer.start();
+                actualizarSeekBar();
+            } else {
+                siguienteCancion();
+            }
         });
     }
 
@@ -602,16 +507,186 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         final float[] vol = {1.0f};
         handler.post(new Runnable() {
             @Override public void run() {
-                if (vol[0] > 0 && mediaPlayer != null) {
+                if (vol[0] > 0.05f && mediaPlayer != null) {
                     vol[0] -= 0.05f;
                     mediaPlayer.setVolume(vol[0], vol[0]);
-                    handler.postDelayed(this, 100);
+                    handler.postDelayed(this, 80);
                 } else {
-                    if (isRepeat && mediaPlayer != null) { mediaPlayer.seekTo(0); mediaPlayer.setVolume(1,1); mediaPlayer.start(); }
-                    else siguienteCancion();
+                    if (mediaPlayer != null) {
+                        mediaPlayer.setVolume(1f, 1f);
+                    }
+                    if (isRepeat && mediaPlayer != null) {
+                        mediaPlayer.seekTo(0);
+                        aplicarVelocidad();
+                        mediaPlayer.setVolume(1f, 1f);
+                        mediaPlayer.start();
+                    } else {
+                        siguienteCancion();
+                    }
                 }
             }
         });
+    }
+
+    // ✅ Enviar broadcast para actualizar la NowPlayingBar
+    private void enviarActualizacionNowPlaying() {
+        Intent intent = new Intent("NOW_PLAYING_UPDATE");
+        intent.putExtra("cancion", cancionActual);
+        intent.putExtra("isPlaying", isPlaying);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
+
+    // ✅ RETORNA boolean para saber si se cargaron los datos
+    private boolean cargarPlaylist() {
+        Intent intent = getIntent();
+        Log.d(TAG, "cargarPlaylist: Intent recibido");
+
+        try {
+            if (intent.hasExtra("cancion_serializada")) {
+                Serializable obj = intent.getSerializableExtra("cancion_serializada");
+                if (obj instanceof Cancion) {
+                    cancionActual = (Cancion) obj;
+                    cancionActual.restaurarUri();
+                    Log.d(TAG, "cargarPlaylist: Canción cargada: " + cancionActual.getTitulo());
+                }
+            }
+
+            if (intent.hasExtra("lista_canciones")) {
+                Serializable listObj = intent.getSerializableExtra("lista_canciones");
+                if (listObj instanceof List<?>) {
+                    List<?> temp = (List<?>) listObj;
+                    if (!temp.isEmpty() && temp.get(0) instanceof Cancion) {
+                        playlistActual = (List<Cancion>) listObj;
+                        for (Cancion c : playlistActual) if (c != null) c.restaurarUri();
+                        Log.d(TAG, "cargarPlaylist: Playlist cargada con " + playlistActual.size() + " canciones");
+                    }
+                }
+            }
+
+            posicionActual = intent.getIntExtra("lista_posicion", 0);
+
+            if (playlistActual == null || playlistActual.isEmpty()) {
+                playlistActual = new ArrayList<>();
+                if (cancionActual != null) {
+                    playlistActual.add(cancionActual);
+                    Log.d(TAG, "cargarPlaylist: Playlist creada con canción actual");
+                }
+            }
+
+            if (cancionActual != null) return true;
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error deserializando playlist", e);
+        }
+
+        // Método legacy por extras individuales
+        long cancionId  = intent.getLongExtra("cancion_id", -1);
+        String titulo   = intent.getStringExtra("cancion_titulo");
+        String artista  = intent.getStringExtra("cancion_artista");
+        String album    = intent.getStringExtra("cancion_album");
+        long duracion   = intent.getLongExtra("cancion_duracion", 0);
+        long albumId    = intent.getLongExtra("cancion_album_id", 0);
+        String uriStr   = intent.getStringExtra("cancion_uri");
+
+        Log.d(TAG, "cargarPlaylist: Legacy - cancionId=" + cancionId + ", titulo=" + titulo);
+
+        if (cancionId != -1 && titulo != null) {
+            Uri uri = uriStr != null && !uriStr.isEmpty()
+                    ? Uri.parse(uriStr)
+                    : ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, cancionId);
+            cancionActual = new Cancion(cancionId, titulo, artista, album, duracion, uri, albumId);
+            playlistActual = new ArrayList<>();
+            playlistActual.add(cancionActual);
+            posicionActual = 0;
+            Log.d(TAG, "cargarPlaylist: Canción cargada por legacy");
+            return true;
+        }
+
+        Log.e(TAG, "cargarPlaylist: No se pudo cargar ninguna canción");
+        return false;
+    }
+
+    private void inicializarMediaPlayer() {
+        Log.d(TAG, "inicializarMediaPlayer: Iniciando...");
+
+        // FIX Bug 1: Detener el MusicPlayerService si estaba reproduciendo otra canción
+        // Esto evita que suenen dos canciones a la vez cuando se abre una nueva desde la lista
+        com.example.music1.utils.MusicPlayerService serviceActivo =
+                com.example.music1.utils.MusicPlayerService.getInstance();
+        if (serviceActivo != null) {
+            serviceActivo.detenerReproduccion();
+        }
+
+        try {
+            if (equalizer != null) {
+                equalizer.release();
+                equalizer = null;
+            }
+
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
+
+            if (cancionActual == null) {
+                Log.e(TAG, "inicializarMediaPlayer: cancionActual es null");
+                Toast.makeText(this, "Error: Canción no válida", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+
+            cancionActual.restaurarUri();
+            Uri uri = cancionActual.getUri();
+
+            if (uri == null) {
+                Log.e(TAG, "inicializarMediaPlayer: URI es null");
+                Toast.makeText(this, "No se pudo acceder al archivo de audio", Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+
+            Log.d(TAG, "inicializarMediaPlayer: URI=" + uri.toString());
+
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.setDataSource(this, uri);
+            mediaPlayer.prepareAsync();
+
+            mediaPlayer.setOnPreparedListener(mp -> {
+                Log.d(TAG, "MediaPlayer preparado correctamente");
+                configurarMediaPlayer();
+
+                try {
+                    mp.start();
+                    isPlaying = true;
+                    playPauseButton.setImageResource(R.drawable.ic_pause);
+                    albumCover.startAnimation(rotateAnimation);
+                    actualizarSeekBar();
+                    HistorialManager.getInstance(ReproductorLocalActivity.this).registrarReproduccion(cancionActual);
+                    enviarActualizacionNowPlaying(); // ✅ Notificar a la barra
+                    // FIX Bug 2: Arrancar el MusicPlayerService para que NowPlayingBar funcione
+                    // El servicio recibe la canción actual y actualiza la barra mini
+                    arrancarServicioConCancionActual();
+                    Log.d(TAG, "Reproducción iniciada correctamente");
+                } catch (Exception e) {
+                    Log.e(TAG, "Error al iniciar reproducción", e);
+                    isPlaying = false;
+                    playPauseButton.setImageResource(R.drawable.ic_play);
+                    Toast.makeText(ReproductorLocalActivity.this, "Error al reproducir: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                actualizarUI();
+            });
+
+            mediaPlayer.setOnErrorListener((mp, what, extra) -> {
+                Log.e(TAG, "MediaPlayer error: what=" + what + ", extra=" + extra);
+                Toast.makeText(ReproductorLocalActivity.this, "Error al reproducir el audio", Toast.LENGTH_SHORT).show();
+                return true;
+            });
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error inicializando MediaPlayer", e);
+            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     private void actualizarUI() {
@@ -630,7 +705,7 @@ public class ReproductorLocalActivity extends AppCompatActivity {
 
     private void setupRotateAnimation() {
         rotateAnimation = new RotateAnimation(0, 360,
-            Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         rotateAnimation.setDuration(4000);
         rotateAnimation.setRepeatCount(Animation.INFINITE);
         rotateAnimation.setInterpolator(new android.view.animation.LinearInterpolator());
@@ -638,6 +713,7 @@ public class ReproductorLocalActivity extends AppCompatActivity {
 
     private void setupListeners() {
         playPauseButton.setOnClickListener(v -> {
+            Log.d(TAG, "Play/Pause click, isPlaying=" + isPlaying);
             if (isPlaying) pausarCancion(); else reproducirCancion();
         });
         prevButton.setOnClickListener(v -> cancionAnterior());
@@ -667,8 +743,8 @@ public class ReproductorLocalActivity extends AppCompatActivity {
     private void toggleFavoritoLocal() {
         if (cancionActual == null) return;
         Favorito fav = new Favorito(cancionActual.getId(), cancionActual.getTitulo(),
-            cancionActual.getArtista(), cancionActual.getAlbum(), cancionActual.getDuracion(),
-            cancionActual.getUriString(), cancionActual.getAlbumId());
+                cancionActual.getArtista(), cancionActual.getAlbum(), cancionActual.getDuracion(),
+                cancionActual.getUriString(), cancionActual.getAlbumId());
 
         if (favoritosManager.esFavorito(fav.getId(), fav.getUri())) {
             favoritosManager.quitarFavorito(fav.getId(), fav.getUri());
@@ -681,35 +757,57 @@ public class ReproductorLocalActivity extends AppCompatActivity {
     }
 
     private void reproducirCancion() {
-        if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
-            mediaPlayer.setVolume(1f, 1f);
-            mediaPlayer.start();
-            isPlaying = true;
-
-        MiniPlayerManager.tituloActual = cancionActual.getTitulo();
-        MiniPlayerManager.reproduciendo = true;
-            playPauseButton.setImageResource(R.drawable.ic_pause);
-            albumCover.startAnimation(rotateAnimation);
-            actualizarSeekBar();
-            HistorialManager.getInstance(this).registrarReproduccion(cancionActual);
+        Log.d(TAG, "reproducirCancion: Intentando reproducir");
+        if (mediaPlayer != null) {
+            try {
+                if (!mediaPlayer.isPlaying()) {
+                    mediaPlayer.start();
+                    isPlaying = true;
+                    playPauseButton.setImageResource(R.drawable.ic_pause);
+                    albumCover.startAnimation(rotateAnimation);
+                    actualizarSeekBar();
+                    HistorialManager.getInstance(this).registrarReproduccion(cancionActual);
+                    enviarActualizacionNowPlaying(); // ✅ Notificar a la barra
+                    Log.d(TAG, "reproducirCancion: Reproduciendo");
+                }
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "reproducirCancion: Error de estado", e);
+                inicializarMediaPlayer();
+            }
+        } else {
+            Log.w(TAG, "reproducirCancion: mediaPlayer es null, reinicializando");
+            inicializarMediaPlayer();
         }
     }
 
     private void pausarCancion() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
+        Log.d(TAG, "pausarCancion: Intentando pausar");
+        if (mediaPlayer != null) {
+            try {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                    isPlaying = false;
+                    playPauseButton.setImageResource(R.drawable.ic_play);
+                    albumCover.clearAnimation();
+                    enviarActualizacionNowPlaying(); // ✅ Notificar a la barra
+                    Log.d(TAG, "pausarCancion: Pausado");
+                }
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "pausarCancion: Error", e);
+                isPlaying = false;
+                playPauseButton.setImageResource(R.drawable.ic_play);
+            }
+        } else {
             isPlaying = false;
             playPauseButton.setImageResource(R.drawable.ic_play);
-            albumCover.clearAnimation();
-            handler.removeCallbacks(updateSeekBar);
         }
     }
 
     private void siguienteCancion() {
         if (playlistActual.isEmpty()) return;
         posicionActual = isShuffle && playlistActual.size() > 1
-            ? nuevoIndiceAleatorio(posicionActual)
-            : (posicionActual + 1) % playlistActual.size();
+                ? nuevoIndiceAleatorio(posicionActual)
+                : (posicionActual + 1) % playlistActual.size();
         cancionActual = playlistActual.get(posicionActual);
         cancionActual.restaurarUri();
         inicializarMediaPlayer();
@@ -718,8 +816,8 @@ public class ReproductorLocalActivity extends AppCompatActivity {
     private void cancionAnterior() {
         if (playlistActual.isEmpty()) return;
         posicionActual = isShuffle && playlistActual.size() > 1
-            ? nuevoIndiceAleatorio(posicionActual)
-            : (posicionActual - 1 + playlistActual.size()) % playlistActual.size();
+                ? nuevoIndiceAleatorio(posicionActual)
+                : (posicionActual - 1 + playlistActual.size()) % playlistActual.size();
         cancionActual = playlistActual.get(posicionActual);
         cancionActual.restaurarUri();
         inicializarMediaPlayer();
@@ -731,15 +829,42 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         return nuevo;
     }
 
+    // ✅ CORREGIDO: Método actualizarSeekBar con manejo seguro de MediaPlayer
     private void actualizarSeekBar() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            seekBar.setProgress(mediaPlayer.getCurrentPosition());
-            currentTime.setText(msATiempo(mediaPlayer.getCurrentPosition()));
+        if (mediaPlayer != null && isPlaying) {
+            try {
+                if (mediaPlayer.isPlaying()) {
+                    int currentPosition = mediaPlayer.getCurrentPosition();
+                    seekBar.setProgress(currentPosition);
+                    currentTime.setText(msATiempo(currentPosition));
+                    handler.postDelayed(updateSeekBar, 1000);
+                } else {
+                    if (isPlaying) {
+                        isPlaying = false;
+                        playPauseButton.setImageResource(R.drawable.ic_play);
+                        albumCover.clearAnimation();
+                    }
+                    handler.postDelayed(updateSeekBar, 500);
+                }
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "actualizarSeekBar: MediaPlayer en estado inválido", e);
+                if (cancionActual != null) {
+                    inicializarMediaPlayer();
+                }
+            }
+        } else if (mediaPlayer == null && cancionActual != null) {
+            Log.w(TAG, "actualizarSeekBar: MediaPlayer nulo, reinicializando");
+            inicializarMediaPlayer();
             handler.postDelayed(updateSeekBar, 1000);
         }
     }
 
-    private final Runnable updateSeekBar = this::actualizarSeekBar;
+    private final Runnable updateSeekBar = new Runnable() {
+        @Override
+        public void run() {
+            actualizarSeekBar();
+        }
+    };
 
     private String msATiempo(int ms) {
         return String.format(Locale.US, "%d:%02d", ms / 60000, (ms / 1000) % 60);
@@ -748,18 +873,93 @@ public class ReproductorLocalActivity extends AppCompatActivity {
     private void actualizarIconoFavorito() {
         if (cancionActual != null && favoritosManager != null) {
             favButton.setImageResource(
-                favoritosManager.esFavorito(cancionActual.getId(), cancionActual.getUriString())
-                    ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+                    favoritosManager.esFavorito(cancionActual.getId(), cancionActual.getUriString())
+                            ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
         }
     }
 
+    // FIX Bug 2: Inicia el MusicPlayerService con la canción actual
+    // Esto hace que la NowPlayingBar tenga referencia al servicio y pueda reproducir/pausar
+    private void arrancarServicioConCancionActual() {
+        try {
+            Intent serviceIntent = new Intent(this, com.example.music1.utils.MusicPlayerService.class);
+            serviceIntent.putExtra("cancion_serializada", cancionActual);
+            if (!playlistActual.isEmpty()) {
+                serviceIntent.putExtra("lista_canciones", new ArrayList<>(playlistActual));
+                serviceIntent.putExtra("lista_posicion", posicionActual);
+            }
+            // Solo actualizamos metadatos del servicio — NO iniciamos reproducción desde el servicio
+            // porque el MediaPlayer ya está corriendo en esta Activity
+            serviceIntent.putExtra("solo_metadatos", true);
+            startService(serviceIntent);
+        } catch (Exception e) {
+            Log.e(TAG, "Error arrancando servicio", e);
+        }
+    }
+
+    // ✅ CORREGIDO: onBackPressed con mejor manejo al salir
     @Override
-    public void onBackPressed() { super.onBackPressed(); }
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setTitle("Salir del reproductor")
+                .setMessage("¿Qué deseas hacer?")
+                .setPositiveButton("Solo salir (música sigue)", (d, w) -> {
+                    moveTaskToBack(true);
+                    Toast.makeText(this, "Música en segundo plano. Usa la notificación para volver.", Toast.LENGTH_LONG).show();
+                })
+                .setNegativeButton("Detener música y salir", (d, w) -> {
+                    if (mediaPlayer != null) {
+                        try {
+                            if (mediaPlayer.isPlaying()) {
+                                mediaPlayer.stop();
+                            }
+                            mediaPlayer.release();
+                        } catch (Exception e) {
+                            Log.e(TAG, "Error al detener MediaPlayer", e);
+                        }
+                        mediaPlayer = null;
+                    }
+                    stopService(new Intent(this, com.example.music1.utils.MusicPlayerService.class));
+                    isPlaying = false;
+                    finish();
+                })
+                .setNeutralButton("Cancelar", null)
+                .show();
+    }
+
+    // FIX Alto 2: Receptor para controlar el MediaPlayer desde la NowPlayingBar
+    // Esto evita que la barra mini inicie un segundo MediaPlayer en el servicio
+    private android.content.BroadcastReceiver controlReceiver;
 
     @Override
     protected void onResume() {
         super.onResume();
         if (isPlaying && mediaPlayer != null) handler.post(updateSeekBar);
+
+        // Registrar receptor de control desde la barra mini
+        controlReceiver = new android.content.BroadcastReceiver() {
+            @Override
+            public void onReceive(android.content.Context ctx, Intent intent) {
+                String action = intent.getStringExtra("action");
+                if ("PLAY_PAUSE".equals(action)) {
+                    if (isPlaying) pausarCancion(); else reproducirCancion();
+                } else if ("NEXT".equals(action)) {
+                    siguienteCancion();
+                }
+            }
+        };
+        androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this)
+            .registerReceiver(controlReceiver, new android.content.IntentFilter("REPRODUCTOR_CONTROL"));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (controlReceiver != null) {
+            androidx.localbroadcastmanager.content.LocalBroadcastManager.getInstance(this)
+                .unregisterReceiver(controlReceiver);
+            controlReceiver = null;
+        }
     }
 
     @Override
@@ -776,11 +976,9 @@ public class ReproductorLocalActivity extends AppCompatActivity {
         super.onDestroy();
         handler.removeCallbacks(updateSeekBar);
         cancelarSleepTimer();
-        if (equalizer != null) { equalizer.release(); equalizer = null; }
-        if (mediaPlayer != null) {
-            if (mediaPlayer.isPlaying()) mediaPlayer.stop();
-            mediaPlayer.release();
-            mediaPlayer = null;
+        if (equalizer != null) {
+            equalizer.release();
+            equalizer = null;
         }
     }
 }

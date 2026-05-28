@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-feature android:name="android.hardware.sensor.proximity" android:required="false" />
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
@@ -53,17 +55,13 @@
             android:name=".AvatarActivity"
             android:exported="false" />
 
-        <!-- ⚠️ COMENTADO: No se usa actualmente
         <activity
             android:name=".NuevaBienvenidaActivity"
             android:exported="false" />
-        -->
 
-        <!-- ⚠️ COMENTADO: No se usa actualmente
         <activity
             android:name=".VideoActivity"
             android:exported="false" />
-        -->
 
         <activity
             android:name=".TipoMusicaActivity"
@@ -114,6 +112,13 @@
             android:name=".PerfilUsuarioActivity"
             android:exported="false"
             android:theme="@style/Theme.Music1" />
+
+        <!-- ========== SERVICE para música en segundo plano ========== -->
+        <service
+            android:name=".utils.MusicPlayerService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
 
     </application>
 

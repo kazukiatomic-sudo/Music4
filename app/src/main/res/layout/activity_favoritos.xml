@@ -38,5 +38,4 @@
 
     </FrameLayout>
 
-    <include layout="@layout/layout_miniplayer" />
 </LinearLayout>

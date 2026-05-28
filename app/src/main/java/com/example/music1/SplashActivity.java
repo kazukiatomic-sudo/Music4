@@ -77,6 +77,7 @@ public class SplashActivity extends AppCompatActivity {
 
         btnIniciar.setOnClickListener(v -> {
             Log.d(TAG, "btnIniciar click");
+            detenerMusicaSplash();
             v.clearAnimation();
 
             v.animate()
@@ -90,7 +91,7 @@ public class SplashActivity extends AppCompatActivity {
                                 .setDuration(100)
                                 .start();
 
-                        new Handler().postDelayed(() -> {
+                        new Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
                             Intent intent = new Intent(SplashActivity.this, LoadingActivity.class);
                             startActivity(intent);
                             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
@@ -99,6 +100,17 @@ public class SplashActivity extends AppCompatActivity {
                     })
                     .start();
         });
+    }
+
+    private void detenerMusicaSplash() {
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.release();
+            mediaPlayer = null;
+            Log.d(TAG, "Música de splash detenida");
+        }
     }
 
     private void iniciarAnimacionesEntrada() {
@@ -134,32 +146,21 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
-        }
-        if (btnIniciar != null) {
-            btnIniciar.clearAnimation();
-        }
+        if (videoView != null && videoView.isPlaying()) videoView.pause();
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) mediaPlayer.pause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (mediaPlayer != null && !mediaPlayer.isPlaying()) {
-            mediaPlayer.start();
-        }
-        if (btnIniciar != null && rotateAnimation != null) {
-            btnIniciar.startAnimation(rotateAnimation);
-        }
+        if (videoView != null) videoView.start();
+        if (mediaPlayer != null && !mediaPlayer.isPlaying()) mediaPlayer.start();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
+        detenerMusicaSplash();
         if (btnIniciar != null) {
             btnIniciar.clearAnimation();
         }

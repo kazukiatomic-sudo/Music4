@@ -1,6 +1,5 @@
 package com.example.music1;
 
-import com.example.music1.utils.MiniPlayerManager;
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -23,11 +22,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.music1.adapters.ListaMusicaAdapter;
 import com.example.music1.models.Cancion;
+import com.example.music1.utils.MusicPlayerService;
+import com.example.music1.utils.NowPlayingBarManager;
 import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.ArrayList;
@@ -44,14 +46,16 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private LinearLayout emptyState;
 
+    // ✅ Variables para la Now Playing Bar
+    private NowPlayingBarManager nowPlayingBarManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lista_musica_local);
 
-        MiniPlayerManager.setupMiniPlayer(this);
-
         initViews();
+        initNowPlayingBar();
         checkPermissionsAndLoadMusic();
     }
 
@@ -73,6 +77,12 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
             startActivity(intent);
         });
         recyclerView.setAdapter(adapter);
+    }
+
+    // ✅ Inicializar la Now Playing Bar
+    private void initNowPlayingBar() {
+        nowPlayingBarManager = NowPlayingBarManager.getInstance();
+        nowPlayingBarManager.init(this);
     }
 
     @Override
@@ -175,8 +185,25 @@ public class ListaMusicaLocalActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Error al leer música", e);
         }
-
         return canciones;
+    }
+
+    // ✅ Al reanudar, sincronizar la barra con el servicio
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (nowPlayingBarManager != null) {
+            nowPlayingBarManager.sincronizarConServicio();
+        }
+    }
+
+    // ✅ Limpiar al destruir
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (nowPlayingBarManager != null) {
+            nowPlayingBarManager.onDestroy();
+        }
     }
 
     @Override
